@@ -12,3 +12,28 @@ try {
 } catch (e) {
   console.error("Error adding document: ", e);
 }
+
+
+//for loop
+
+for (let i = 0; i < 20; i++) {
+}
+
+
+//get 
+
+function getData(apiUrl) {
+  fetch(apiUrl)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      //do stuff w/ data
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+};
