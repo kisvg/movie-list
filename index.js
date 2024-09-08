@@ -92,12 +92,13 @@ async function getOmdb(name) {
       //do stuff w/ data
       //console.log(data);
       newMovie["name"] = name;
-      newMovie["csrating"] = "";
+      newMovie["csrating"] = null;
       newMovie["imdbid"] = data.imdbID;
       newMovie["poster"] = data.Poster;
       newMovie["runtime"] = data.Runtime;
       newMovie["type"] = data.Type;
       newMovie["plot"] = data.Plot;
+      newMovie["genre"] = data.Genre;
       // finds object w/ rt rating
       const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
       newMovie["rtrating"] = rtobj ? rtobj.Value : null;
