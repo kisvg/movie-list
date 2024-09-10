@@ -142,7 +142,7 @@ async function sendData(root,obj) {
 //code
 
 // add movie
-await addMovie("her");
+//await addMovie("her");
 
 
 // set movie
