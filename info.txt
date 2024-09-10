@@ -37,3 +37,11 @@ function getData(apiUrl) {
       console.error('Error:', error);
     });
 };
+
+// making manual obj
+
+sendData("unwatched",{
+  first: "Ada",
+  last: "Lovelace",
+  born: 1815
+});

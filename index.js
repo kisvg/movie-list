@@ -28,7 +28,7 @@ const omdbKeys = [
   "c3abbed7",
   "94c1da71",
   "53538fbb"
-]
+];
 
 const tmdbKeys = [
   "74f95ee5445e918f8a2fba06cbcbdcc7",
@@ -36,7 +36,7 @@ const tmdbKeys = [
   "4f9b23de6f9cfe24882cd8fa423b1448",
   "694837b1069fb93750e9d2393a64b682",
   "aa451b89b21b649c47ad55247e48f25e"
-]
+];
 
 const wmKeys = [
   "R8V8CpBbYCv8zXXGfSU1VUDa812Y4KTF2rvFnjS1",
@@ -44,7 +44,7 @@ const wmKeys = [
   "5izGd0jD0X4lS2XAL2tu6p2J6BcEe8GhYkMljbsU",
   "l9nHohIhu6uFmTBZKVvZNOGsbygHnEHyXKYmT1HB",
   "VkogIv5ZnH48fVE08y56KzWDvge9gz7JakyJdJjG"
-]
+];
 
 
 
@@ -61,23 +61,14 @@ function randKey(service) {
     var keyList = wmKeys
   }
   return (keyList[Math.floor(Math.random()*(keyList.length))])
-}
-
-async function addMovie(name) {
-  //var newMovie = {};
-  await getOmdb(name);
-  
-  try {
-    //console.log(newMovie);
-    const docRef = await addDoc(collection(db, "unwatched"), newMovie);
-    console.log("Document written with ID: ", docRef.id);
-  } catch (e) {
-    console.error("Error adding document: ", e);
-  }
-  }
-;
+};
 
 var newMovie = {};
+
+async function addMovie(name) {
+  //globalThis.newMovie = {};
+  getOmdb(name)
+};
 
 // Make a GET request
 async function getOmdb(name) {
@@ -90,7 +81,6 @@ async function getOmdb(name) {
     })
     .then(data => {
       //do stuff w/ data
-      //console.log(data);
       newMovie["name"] = name;
       newMovie["csrating"] = null;
       newMovie["imdbid"] = data.imdbID;
@@ -104,7 +94,8 @@ async function getOmdb(name) {
       newMovie["rtrating"] = rtobj ? rtobj.Value : null;
       document.getElementById("text2").innerHTML = (newMovie.imdbid);
       document.getElementById("poster").src = (newMovie.poster);
-      getTmdb(data.imdbID)
+      //next fxn
+      getTmdb(data.imdbID);
     })
     .catch(error => {
       console.error('Error:', error);
@@ -127,27 +118,32 @@ async function getTmdb(imdbid) {
         services.push(item.provider_name)
       });
       newMovie["services"] = services;
-      console.log(newMovie);
+      //next fxn
+      sendData("unwatched",newMovie);
     })
     .catch(error => {
       console.error('Error:', error);
     });
 };
 
-
-
-
-getOmdb("her")
-// await addMovie("bambi")
-
-
-
+async function sendData(root,obj) {
+  try {
+    const docRef = await addDoc(collection(db, root), obj);
+    console.log("Document written with ID: ", docRef.id
+      , "\nDocument contents:"
+    );
+    console.log(obj)
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+}
 
 
 //code
 
 // add movie
-// await addMovie("Mathilda");
+await addMovie("her");
+
 
 // set movie
 
