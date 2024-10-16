@@ -2,7 +2,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, addDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj4WhOtO_5fuUK7xqEU8ZOAlYrVTOx8uA",
@@ -138,18 +138,30 @@ async function sendData(root,obj) {
   }
 }
 
-
-//code
-
-// add movie
-//await addMovie("her");
-
+async function moveData(root, name, destination){
+  const docRef = doc(db, root, name);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    try{
+      await setDoc(doc(db, destination, name), docSnap.data())
+      //sendData(destination,docSnap.data())
+    }
+    catch(e){
+      console.log("error sending data")
+    }
+    await deleteDoc(doc(db, root, name));
+  } else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document");
+  }
+}
 
 // set movie
 
 /*
+var movieId = "n6W6u4fQx6hx1H3MISVZ"
 try {
-    const docRef = await setDoc(doc(db, "unwatched","movieid"), {
+    const docRef = await setDoc(doc(db, "unwatched",movieId), {
       name: "Dune",
       csrating: "17",
       rtrating: "86%"
@@ -160,12 +172,28 @@ try {
   };
 */
 
-// get
+// get docs (snapshot)
 
 /*
-const dataSnapshot = await getDocs(collection(db, "unwatched"));
-dataSnapshot.forEach((doc) => {
+const dataSnap = await getDocs(collection(db, "unwatched"));
+dataSnap.forEach((doc) => {
   console.log(` imdbid: ${doc.id} \n name: ${doc.data().name}`);
   document.getElementById("text").innerHTML =(` imdbid: ${doc.id}, name: ${doc.data().name}`)
 });
+*/
+
+// get specific doc
+
+/*
+var movieId = "n6W6u4fQx6hx1H3MISVZ"
+
+const docRef = doc(db, "unwatched", movieId);
+const docSnap = await getDoc(docRef);
+
+if (docSnap.exists()) {
+  console.log("Document data:", docSnap.data());
+} else {
+  // docSnap.data() will be undefined in this case
+  console.log("No such document!");
+}
 */
