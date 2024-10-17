@@ -1,8 +1,8 @@
-//firebase config
+// firebase config
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, doc, query, where, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj4WhOtO_5fuUK7xqEU8ZOAlYrVTOx8uA",
@@ -14,13 +14,17 @@ const firebaseConfig = {
   measurementId: "G-HSCPQX2LLT"
 };
 
-// Initialize Firebase
+// initialize firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 
-//lists
+// refs
+const unwatchedRef = collection(db, "unwatched")
+const watchedRef = collection(db, "watched")
+
+// lists
 
 const omdbKeys = [
   "f58b2e26",
@@ -47,8 +51,7 @@ const wmKeys = [
 ];
 
 
-
-//functions
+// functions
 
 function randKey(service) {
   if (service == "omdb") {
@@ -70,7 +73,7 @@ async function addMovie(name) {
   getOmdb(name)
 };
 
-// Make a GET request
+// Make GET request
 async function getOmdb(name) {
   fetch("https://www.omdbapi.com/?t="+name+"&plot=full&apikey="+randKey("omdb"))
     .then(response => {
@@ -155,6 +158,18 @@ async function moveData(root, name, destination){
     console.log("No such document");
   }
 }
+
+// updating
+const update = onSnapshot(unwatchedRef, (querySnapshot) => {
+  const data = [];
+  const names = [];
+  querySnapshot.forEach((doc) => {
+    data.push(doc.data())
+    names.push(doc.data().name)
+  });
+  //console.log(data)
+  //console.log(names.join("\n"))
+});
 
 // set movie
 
