@@ -1,0 +1,40 @@
+.popup {
+    display: none; /* Hide by default */
+}
+.popup.active {
+    display: block; /* Show when active */
+}
+
+.loading {
+    display: none; /* Hide by default */
+}
+.loading.active {
+    display: block; /* Show when active */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 20px;
+    z-index: 1000; /* Ensure it's on top */
+}
+
+.pop-content{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 20px;
+    z-index: 1000; /* Ensure it's on top */
+}
+
+.pop-bg {
+    position: fixed; /* Fixes the box in place */
+    top: 0;         /* Aligns the box to the top */
+    left: 0;        /* Aligns the box to the left */
+    width: 100vw;   /* 100% of the viewport width */
+    height: 100vh;  /* 100% of the viewport height */
+    background-color: rgba(0, 0, 0, 0.5); /* Example background color */
+    z-index: 500;   /* Make sure it's above other content */
+}

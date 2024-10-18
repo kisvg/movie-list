@@ -95,8 +95,6 @@ async function getOmdb(name) {
       // finds object w/ rt rating
       const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
       newMovie["rtrating"] = rtobj ? rtobj.Value : null;
-      document.getElementById("text2").innerHTML = (newMovie.imdbid);
-      document.getElementById("poster").src = (newMovie.poster);
       //next fxn
       getTmdb(data.imdbID);
     })
@@ -117,9 +115,12 @@ async function getTmdb(imdbid) {
       const data = initialdata.results.US.flatrate
       //do stuff w/ data
       var services = [];
+      //if there are any flatrates
+      if(data){
       data.forEach(item => {
         services.push(item.provider_name)
       });
+      }
       newMovie["services"] = services;
       //next fxn
       sendData("unwatched",newMovie);
@@ -161,15 +162,77 @@ async function moveData(root, name, destination){
 
 // updating
 const update = onSnapshot(unwatchedRef, (querySnapshot) => {
-  const data = [];
-  const names = [];
+  //delete previous inserted html
+  document.getElementById("list").innerHTML = '';
+  const unwatched = [];
   querySnapshot.forEach((doc) => {
-    data.push(doc.data())
-    names.push(doc.data().name)
+    unwatched.push({
+      id: doc.id, 
+      data: doc.data()
+    })
   });
-  //console.log(data)
-  //console.log(names.join("\n"))
+  unwatched.forEach(movie => {
+    var data = movie.data;
+    var id = movie.id;
+    var markup = `
+      <div class="movie" id="${id}">
+      <img src="${data.poster}">
+      <h2>${data.name}</h2>
+      </div>
+    `
+    document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
+    document.getElementById(id).onclick = function() {openPop(id)};
+  });
 });
+
+// popups
+
+document.getElementById('close-pop').onclick = function() {closePop()};
+
+function clearPop(){
+  document.getElementById("pop-name").innerHTML=null
+  document.getElementById("pop-plot").innerHTML=null
+  document.getElementById("pop-poster").src=null
+}
+
+// Function to open the popup
+async function openPop(movieId) {
+  document.getElementById("loading").classList.add('active');
+  //get data
+  const docRef = doc(db, "unwatched", movieId);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    var data = docSnap.data()
+    console.log("Document data:", data);
+    document.getElementById("pop-name").innerHTML=data.name
+    document.getElementById("pop-plot").innerHTML=data.plot
+    document.getElementById("pop-poster").src=data.poster
+  } 
+  else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document!");
+  }
+  globalThis.currentId = movieId
+  console.log(currentId)
+  document.getElementById("loading").classList.remove('active');
+  document.getElementById("popup").classList.add('active');
+}
+
+// Function to close the popup
+function closePop() {
+  document.getElementById("popup").classList.remove('active');
+  clearPop()
+  globalThis.currentId = null
+}
+
+// Close popup when clicking outside the content
+window.onclick = function(event) {
+  if (event.target.id === "pop-bg") {
+    closePop()
+  };
+}
+
+document.getElementById('button-add-movie').onclick = function() {addMovie(document.getElementById("input-add-movie").value)};
 
 // set movie
 

@@ -2,12 +2,30 @@
 <html>
     <head>
         <title>Movie List</title>
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <p id="text"></p>
-        <br>
-        <p id="text2"></p>
-        <img id="poster">
+        <p>add movie:</p>
+        <input type="text" id="input-add-movie">
+        <button id="button-add-movie">submit</button>
+        <h1>data</h1>
+        <div class="list" id="list">
+            <!-- movies go here-->
+        </div>
+        <div class="loading" id="loading">
+            <img src="https://media.tenor.com/jfmI0j5FcpAAAAAM/loading-wtf.gif">
+        </div>
+        <div id="popup" class="popup">
+            <div class="pop-bg" id="pop-bg"></div>
+            <div class="pop-content">
+                <span id="close-pop">&times;</span>
+                <h1 id="pop-name"></h1>
+                <img id="pop-poster">
+                <h1 id="pop-title"></h1>
+                <p id="pop-plot"></p>
+            </div>
+        </div>
+
         <script type="module" src="index.js"></script>
     </body>
 
