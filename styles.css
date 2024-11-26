@@ -38,3 +38,58 @@
     background-color: rgba(0, 0, 0, 0.5); /* Example background color */
     z-index: 500;   /* Make sure it's above other content */
 }
+
+.list{
+    display: flex;
+    flex-wrap: wrap;       /* Allows movies to wrap onto a new line */
+    gap: 15px;             /* Space between each movie item */
+}
+
+.movie {
+    /*flex: 0 0 150px;        /* Fixed width for each movie item */
+    display: flex;
+    flex-direction: column; /* Stack the thumbnail and movie name vertically */
+    align-items: center;
+    text-align: center;
+    border-radius: 15px;
+    background: #cccccc;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.poster {
+    /*width: 100%;
+    height: 100%;
+    */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    border-radius: 5px;
+}
+
+.name {
+    margin-top: 8px;        /* Space between the poster and movie name */
+}
+
+.pop-services{
+    display: flex;
+    justify-content: space-around;
+}
+
+.service{
+    padding: 5px;
+    border: 1px solid #000000;
+    border-radius: 5px;
+}
+
+.pop-genres{
+    display: flex;
+    justify-content: space-around;
+}
+
+.genre{
+    padding: 5px;
+    border: 1px solid #000000;
+    border-radius: 5px;
+}

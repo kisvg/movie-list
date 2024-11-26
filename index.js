@@ -66,68 +66,66 @@ function randKey(service) {
   return (keyList[Math.floor(Math.random()*(keyList.length))])
 };
 
-var newMovie = {};
+//var newMovie = {};
 
 async function addMovie(name) {
-  //globalThis.newMovie = {};
-  getOmdb(name)
+  globalThis.newMovie = {};
+  await getInfo(name);
+  await sendData("unwatched",newMovie);
 };
+
+async function getInfo(name) {
+  await getOmdb(name);
+  await getTmdb(newMovie.imdbid);
+  console.log(newMovie);
+}
 
 // Make GET request
 async function getOmdb(name) {
-  fetch("https://www.omdbapi.com/?t="+name+"&plot=full&apikey="+randKey("omdb"))
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(data => {
-      //do stuff w/ data
-      newMovie["name"] = name;
-      newMovie["csrating"] = null;
-      newMovie["imdbid"] = data.imdbID;
-      newMovie["poster"] = data.Poster;
-      newMovie["runtime"] = data.Runtime;
-      newMovie["type"] = data.Type;
-      newMovie["plot"] = data.Plot;
-      newMovie["genre"] = data.Genre;
-      // finds object w/ rt rating
-      const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
-      newMovie["rtrating"] = rtobj ? rtobj.Value : null;
-      //next fxn
-      getTmdb(data.imdbID);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+  try{
+  const response = await fetch("https://www.omdbapi.com/?t="+name+"&plot=full&apikey="+randKey("omdb"))
+  if (!response.ok) {
+    throw new Error('Response was not ok');
+  }
+  const data = await response.json();
+  // add important data to newMovie
+  newMovie["title"] = data.Title;;
+  newMovie["csrating"] = null;
+  newMovie["imdbid"] = data.imdbID;
+  newMovie["poster"] = data.Poster;
+  newMovie["runtime"] = data.Runtime;
+  newMovie["type"] = data.Type;
+  newMovie["plot"] = data.Plot;
+  newMovie["genre"] = data.Genre;
+  // finds object w/ rt rating
+  const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
+  newMovie["rtrating"] = rtobj ? rtobj.Value : null;
+  }
+  catch (error) {
+    console.error('Error:', error);
+  }
 };
 
 async function getTmdb(imdbid) {
-  fetch("https://api.themoviedb.org/3/movie/"+imdbid+"/watch/providers?api_key="+randKey("tmdb"))
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then(initialdata => {
-      const data = initialdata.results.US.flatrate
-      //do stuff w/ data
-      var services = [];
-      //if there are any flatrates
-      if(data){
-      data.forEach(item => {
-        services.push(item.provider_name)
-      });
-      }
-      newMovie["services"] = services;
-      //next fxn
-      sendData("unwatched",newMovie);
-    })
-    .catch(error => {
+  try{
+  const response = await fetch("https://api.themoviedb.org/3/movie/"+imdbid+"/watch/providers?api_key="+randKey("tmdb"))
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const initialdata = await response.json();
+  const data = initialdata.results.US?.flatrate;
+  var services = [];
+  //if there are any flatrates
+  if(data){
+  data.forEach(item => {
+    services.push(item.provider_name)
+  });
+  }
+  newMovie["services"] = services;
+    }
+    catch (error) {
       console.error('Error:', error);
-    });
+    }
 };
 
 async function sendData(root,obj) {
@@ -176,8 +174,8 @@ const update = onSnapshot(unwatchedRef, (querySnapshot) => {
     var id = movie.id;
     var markup = `
       <div class="movie" id="${id}">
-      <img src="${data.poster}">
-      <h2>${data.name}</h2>
+        <img class="poster" src="${data.poster}">
+        <h2 class="title">${data.title}</h2>
       </div>
     `
     document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
@@ -189,11 +187,13 @@ const update = onSnapshot(unwatchedRef, (querySnapshot) => {
 
 document.getElementById('close-pop').onclick = function() {closePop()};
 
+/*
 function clearPop(){
-  document.getElementById("pop-name").innerHTML=null
+  document.getElementById("pop-title").innerHTML=null
   document.getElementById("pop-plot").innerHTML=null
-  document.getElementById("pop-poster").src=null
+  document.getElementById("pop-poster").src=""
 }
+*/
 
 // Function to open the popup
 async function openPop(movieId) {
@@ -204,16 +204,24 @@ async function openPop(movieId) {
   if (docSnap.exists()) {
     var data = docSnap.data()
     console.log("Document data:", data);
-    document.getElementById("pop-name").innerHTML=data.name
+    document.getElementById("pop-title").innerHTML=data.title
     document.getElementById("pop-plot").innerHTML=data.plot
     document.getElementById("pop-poster").src=data.poster
+    console.log(data.services)
+    document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
+    //TODO: add if statement so no empty box. Instead display "no services"
+    document.getElementById("pop-genres").innerHTML=`<div class=genre>${data.genre.split(", ").join("</div><div class='genre'>")}</div>`
+    /*var markup = `
+      <p class="service">${data.genre.split(",").join("<div></div>")}</p>
+    `
+    document.querySelector('.services').insertAdjacentHTML('beforeend', markup)*/
   } 
   else {
     // docSnap.data() will be undefined in this case
     console.log("No such document!");
   }
-  globalThis.currentId = movieId
-  console.log(currentId)
+  //globalThis.currentId = movieId
+  //console.log(currentId)
   document.getElementById("loading").classList.remove('active');
   document.getElementById("popup").classList.add('active');
 }
@@ -221,8 +229,8 @@ async function openPop(movieId) {
 // Function to close the popup
 function closePop() {
   document.getElementById("popup").classList.remove('active');
-  clearPop()
-  globalThis.currentId = null
+  //clearPop()
+  //globalThis.currentId = null
 }
 
 // Close popup when clicking outside the content

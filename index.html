@@ -8,20 +8,30 @@
         <p>add movie:</p>
         <input type="text" id="input-add-movie">
         <button id="button-add-movie">submit</button>
-        <h1>data</h1>
+        
+        <div>
+            <!-- filter system -->
+        </div>
+
         <div class="list" id="list">
             <!-- movies go here-->
         </div>
+
         <div class="loading" id="loading">
             <img src="https://media.tenor.com/jfmI0j5FcpAAAAAM/loading-wtf.gif">
         </div>
+
         <div id="popup" class="popup">
             <div class="pop-bg" id="pop-bg"></div>
             <div class="pop-content">
                 <span id="close-pop">&times;</span>
-                <h1 id="pop-name"></h1>
-                <img id="pop-poster">
                 <h1 id="pop-title"></h1>
+                <img id="pop-poster">
+                <h3>services: </h3>
+                <div id="pop-services"></div>
+                <h3>genre: </h3>
+                <div id="pop-genres"></div>
+                <h3>plot: </h3>
                 <p id="pop-plot"></p>
             </div>
         </div>
