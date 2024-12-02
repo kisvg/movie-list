@@ -1,13 +1,13 @@
-.popup {
-    display: none; /* Hide by default */
+.no-scroll{
+    overflow: hidden;
 }
-.popup.active {
-    display: block; /* Show when active */
-}
+
+/* popup stuff */
 
 .loading {
     display: none; /* Hide by default */
 }
+
 .loading.active {
     display: block; /* Show when active */
     position: fixed;
@@ -16,17 +16,19 @@
     transform: translate(-50%, -50%);
     background: #ffffff;
     padding: 20px;
-    z-index: 1000; /* Ensure it's on top */
+    z-index: 500;
 }
 
-.pop-content{
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #ffffff;
-    padding: 20px;
-    z-index: 1000; /* Ensure it's on top */
+.popup {
+    display: none; /* Hide by default */
+}
+
+.popup.active {
+    display: block; /* Show when active */
+}
+
+.close-pop{
+    cursor: pointer;
 }
 
 .pop-bg {
@@ -37,6 +39,26 @@
     height: 100vh;  /* 100% of the viewport height */
     background-color: rgba(0, 0, 0, 0.5); /* Example background color */
     z-index: 500;   /* Make sure it's above other content */
+}
+
+.pop-content {
+    position: fixed;
+    top: 5%;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 80%;
+    background: #ffffff;
+    padding: 20px;
+    z-index: 1000;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+
+    /*display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 16px;*/
 }
 
 .list{
@@ -74,22 +96,28 @@
 
 .pop-services{
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
 }
 
 .service{
+    display: inline-flex;
     padding: 5px;
     border: 1px solid #000000;
     border-radius: 5px;
+    /*white-space: nowrap;*/
 }
 
 .pop-genres{
     display: flex;
-    justify-content: space-around;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
 }
 
 .genre{
+    display: inline-flex;
     padding: 5px;
     border: 1px solid #000000;
     border-radius: 5px;
+    /*white-space: nowrap;*/
 }

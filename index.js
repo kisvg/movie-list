@@ -208,13 +208,20 @@ async function openPop(movieId) {
     document.getElementById("pop-plot").innerHTML=data.plot
     document.getElementById("pop-poster").src=data.poster
     console.log(data.services)
+    //if no services
+    if(data.services.length == 0){
+      document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
+    }
+    else{
     document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
-    //TODO: add if statement so no empty box. Instead display "no services"
+    }
     document.getElementById("pop-genres").innerHTML=`<div class=genre>${data.genre.split(", ").join("</div><div class='genre'>")}</div>`
+    
     /*var markup = `
       <p class="service">${data.genre.split(",").join("<div></div>")}</p>
     `
     document.querySelector('.services').insertAdjacentHTML('beforeend', markup)*/
+
   } 
   else {
     // docSnap.data() will be undefined in this case
@@ -224,11 +231,13 @@ async function openPop(movieId) {
   //console.log(currentId)
   document.getElementById("loading").classList.remove('active');
   document.getElementById("popup").classList.add('active');
+  document.body.classList.add('no-scroll');
 }
 
 // Function to close the popup
 function closePop() {
   document.getElementById("popup").classList.remove('active');
+  document.body.classList.remove('no-scroll');
   //clearPop()
   //globalThis.currentId = null
 }
