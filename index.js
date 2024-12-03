@@ -1,4 +1,4 @@
-// firebase config
+//#region firebase config
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
@@ -19,12 +19,13 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
+//#endregion
 
 // refs
 const unwatchedRef = collection(db, "unwatched")
 const watchedRef = collection(db, "watched")
 
-// lists
+//#region lists
 
 const omdbKeys = [
   "f58b2e26",
@@ -50,8 +51,9 @@ const wmKeys = [
   "VkogIv5ZnH48fVE08y56KzWDvge9gz7JakyJdJjG"
 ];
 
+//#endregion
 
-// functions
+//#region adding movies
 
 function randKey(service) {
   if (service == "omdb") {
@@ -128,6 +130,10 @@ async function getTmdb(imdbid) {
     }
 };
 
+//#endregion
+
+//#region managing data
+
 async function sendData(root,obj) {
   try {
     const docRef = await addDoc(collection(db, root), obj);
@@ -158,8 +164,7 @@ async function moveData(root, name, destination){
   }
 }
 
-// updating
-const update = onSnapshot(unwatchedRef, (querySnapshot) => {
+function populate(querySnapshot){
   //delete previous inserted html
   document.getElementById("list").innerHTML = '';
   const unwatched = [];
@@ -181,9 +186,32 @@ const update = onSnapshot(unwatchedRef, (querySnapshot) => {
     document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
     document.getElementById(id).onclick = function() {openPop(id)};
   });
+}
+
+// updating
+const update = onSnapshot(unwatchedRef, (querySnapshot) => {
+  populate(querySnapshot)
 });
 
-// popups
+//#endregion
+
+//#region queries
+
+async function q(criteria){
+  const q = query(unwatchedRef, where(criteria.key,criteria.operator,criteria.value));
+  const querySnapshot = await getDocs(q);
+  populate(querySnapshot)
+  /*
+  console.log(querySnapshot)
+  querySnapshot.forEach((doc) => {
+  console.log(doc.data());
+  });
+  */
+}
+
+//#endregion
+
+//#region popups
 
 document.getElementById('close-pop').onclick = function() {closePop()};
 
@@ -249,46 +277,14 @@ window.onclick = function(event) {
   };
 }
 
+//#endregion
+
 document.getElementById('button-add-movie').onclick = function() {addMovie(document.getElementById("input-add-movie").value)};
 
-// set movie
-
-/*
-var movieId = "n6W6u4fQx6hx1H3MISVZ"
-try {
-    const docRef = await setDoc(doc(db, "unwatched",movieId), {
-      name: "Dune",
-      csrating: "17",
-      rtrating: "86%"
-    });
-    console.log("Document written with ID: ", docRef.id);
-  } catch (e) {
-    console.error("Error adding document: ", e);
-  };
-*/
-
-// get docs (snapshot)
-
-/*
-const dataSnap = await getDocs(collection(db, "unwatched"));
-dataSnap.forEach((doc) => {
-  console.log(` imdbid: ${doc.id} \n name: ${doc.data().name}`);
-  document.getElementById("text").innerHTML =(` imdbid: ${doc.id}, name: ${doc.data().name}`)
-});
-*/
-
-// get specific doc
-
-/*
-var movieId = "n6W6u4fQx6hx1H3MISVZ"
-
-const docRef = doc(db, "unwatched", movieId);
-const docSnap = await getDoc(docRef);
-
-if (docSnap.exists()) {
-  console.log("Document data:", docSnap.data());
-} else {
-  // docSnap.data() will be undefined in this case
-  console.log("No such document!");
+var criteria = {
+  operator: 'array-contains',
+  key: 'services',
+  value: 'Disney Plus'
 }
-*/
+
+//q(criteria)
