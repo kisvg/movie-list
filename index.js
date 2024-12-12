@@ -2,7 +2,9 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, doc, query, where, orderBy, limit, onSnapshot } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, doc, 
+  onSnapshot, 
+  query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj4WhOtO_5fuUK7xqEU8ZOAlYrVTOx8uA",
@@ -91,6 +93,7 @@ async function getOmdb(name) {
   }
   const data = await response.json();
   // add important data to newMovie
+  newMovie["timestamp"] = serverTimestamp();
   newMovie["title"] = data.Title;;
   newMovie["csrating"] = null;
   newMovie["imdbid"] = data.imdbID;
@@ -98,7 +101,7 @@ async function getOmdb(name) {
   newMovie["runtime"] = data.Runtime;
   newMovie["type"] = data.Type;
   newMovie["plot"] = data.Plot;
-  newMovie["genre"] = data.Genre;
+  newMovie["genres"] = data.Genre.split(", ");
   // finds object w/ rt rating
   const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
   newMovie["rtrating"] = rtobj ? rtobj.Value : null;
@@ -197,7 +200,10 @@ const update = onSnapshot(unwatchedRef, (querySnapshot) => {
 
 //#region queries
 
-async function q(criteria){
+async function q(criteria, order = ''){
+  if (order){
+
+  };
   const q = query(unwatchedRef, where(criteria.key,criteria.operator,criteria.value));
   const querySnapshot = await getDocs(q);
   populate(querySnapshot)
@@ -243,10 +249,10 @@ async function openPop(movieId) {
     else{
     document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
     }
-    document.getElementById("pop-genres").innerHTML=`<div class=genre>${data.genre.split(", ").join("</div><div class='genre'>")}</div>`
+    document.getElementById("pop-genres").innerHTML=`<div class=genre>${data.genres.join("</div><div class='genre'>")}</div>`
     
     /*var markup = `
-      <p class="service">${data.genre.split(",").join("<div></div>")}</p>
+      <p class="service">${data.genres.split(",").join("<div></div>")}</p>
     `
     document.querySelector('.services').insertAdjacentHTML('beforeend', markup)*/
 
