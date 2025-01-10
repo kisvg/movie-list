@@ -2,7 +2,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, doc, 
+import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, 
   onSnapshot, 
   query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
@@ -84,7 +84,7 @@ async function getInfo(name) {
   console.log(newMovie);
 }
 
-// Make GET request
+// Make GET request for general movie info
 async function getOmdb(name) {
   try{
   const response = await fetch("https://www.omdbapi.com/?t="+name+"&plot=full&apikey="+randKey("omdb"))
@@ -92,25 +92,29 @@ async function getOmdb(name) {
     throw new Error('Response was not ok');
   }
   const data = await response.json();
-  // add important data to newMovie
-  newMovie["timestamp"] = serverTimestamp();
-  newMovie["title"] = data.Title;;
-  newMovie["csrating"] = null;
-  newMovie["imdbid"] = data.imdbID;
-  newMovie["poster"] = data.Poster;
-  newMovie["runtime"] = data.Runtime;
-  newMovie["type"] = data.Type;
-  newMovie["plot"] = data.Plot;
-  newMovie["genres"] = data.Genre.split(", ");
+  // add relevant data from response to newMovie
+  newMovie["timestamp"] = serverTimestamp(); //n (displayed?)
+  newMovie["title"] = data.Title; //y
+  newMovie["csrating"] = null; //y
+  newMovie["imdbid"] = data.imdbID; //n
+  newMovie["poster"] = data.Poster; //y
+  newMovie["runtime"] = data.Runtime; //n
+  newMovie["type"] = data.Type; //n
+  newMovie["plot"] = data.Plot; //y
+  newMovie["genres"] = data.Genre.split(", "); //y
+  newMovie["year"] = data.Year; //y
+  newMovie["releasedate"] = data.Released; //n
+  newMovie["notes"] = "" //y
   // finds object w/ rt rating
   const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
-  newMovie["rtrating"] = rtobj ? rtobj.Value : null;
+  newMovie["rtrating"] = rtobj ? rtobj.Value : null; //y
   }
   catch (error) {
     console.error('Error:', error);
   }
 };
 
+// GET request only for streaming services given imdb id
 async function getTmdb(imdbid) {
   try{
   const response = await fetch("https://api.themoviedb.org/3/movie/"+imdbid+"/watch/providers?api_key="+randKey("tmdb"))
@@ -126,7 +130,7 @@ async function getTmdb(imdbid) {
     services.push(item.provider_name)
   });
   }
-  newMovie["services"] = services;
+  newMovie["services"] = services; //y
     }
     catch (error) {
       console.error('Error:', error);
@@ -237,11 +241,18 @@ async function openPop(movieId) {
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
     var data = docSnap.data()
-    console.log("Document data:", data);
+    //console.log("Document data:", data);
+    //displays
     document.getElementById("pop-title").innerHTML=data.title
     document.getElementById("pop-plot").innerHTML=data.plot
+    document.getElementById("pop-year").innerHTML=data.year
+    document.getElementById("pop-rtrating").innerHTML=data.rtrating
+    //images
     document.getElementById("pop-poster").src=data.poster
-    console.log(data.services)
+    //inputs
+    document.getElementById("pop-notes").value=data.notes
+    document.getElementById("pop-csrating").value=data.csrating
+    //console.log(data.services)
     //if no services
     if(data.services.length == 0){
       document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
@@ -261,19 +272,34 @@ async function openPop(movieId) {
     // docSnap.data() will be undefined in this case
     console.log("No such document!");
   }
-  //globalThis.currentId = movieId
+  globalThis.currentId = movieId
   //console.log(currentId)
   document.getElementById("loading").classList.remove('active');
   document.getElementById("popup").classList.add('active');
   document.body.classList.add('no-scroll');
 }
 
+// there's a question as to whether we should make the triggers for closePop have an await, which would mean
+// a waterfall of async functions
+
+async function saveChanges(){
+  var csrating = document.getElementById("pop-csrating").value
+  var notes = document.getElementById("pop-notes").value
+  //console.log(csrating, notes)
+  var currentMovieRef = doc(db, "unwatched", currentId)
+  await updateDoc(currentMovieRef, {
+    csrating: csrating,
+    notes: notes,
+  })
+  globalThis.currentId = null
+}
+
 // Function to close the popup
-function closePop() {
+async function closePop() {
   document.getElementById("popup").classList.remove('active');
   document.body.classList.remove('no-scroll');
   //clearPop()
-  //globalThis.currentId = null
+  await saveChanges();
 }
 
 // Close popup when clicking outside the content
