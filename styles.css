@@ -5,18 +5,29 @@
 /* popup stuff */
 
 .loading {
-    display: none; /* Hide by default */
+    position: fixed;
+    top: 100%; /* Start off-screen */
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 80%;
+    height: 95%;
+    background: #ffffff;
+    z-index: 1000;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
+    border-radius: 10px 10px 0 0;
+    
+    visibility: hidden; /* Initially hidden */
+    /*transform: translateY(10px); /* Slightly off-position for animation */
+    transition: none;
+    
 }
 
 .loading.active {
-    display: block; /* Show when active */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #ffffff;
-    padding: 20px;
-    z-index: 500;
+    top: 5%;              /* Target position */
+    visibility: visible;  /* Make visible */
+    /*transform: translateY(0); /* Slide into place */
+    transition: all 0.1s ease; /* Smooth transition */
 }
 
 .popup {
@@ -42,6 +53,7 @@
 }
 
 .pop-content {
+    visibility: hidden;
     position: fixed;
     top: 5%;
     left: 0;
@@ -54,7 +66,7 @@
     max-height: 90%;
     overflow-y: auto;
     box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
-    border-radius: 10px;
+    border-radius: 10px 10px 0 0; /* only top right and top left corners */
 }
 
 .pop-grid{
