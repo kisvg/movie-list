@@ -59,7 +59,7 @@
 
 .pop-grid{
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 300px auto;
     grid-template-rows: auto;
     gap: 16px;
 }
