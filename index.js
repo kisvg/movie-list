@@ -191,6 +191,7 @@ function populate(querySnapshot){
       </div>
     `
     document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
+    //triggers for opening popup
     document.getElementById(id).onclick = function() {openPop(id)};
   });
 }
@@ -223,20 +224,9 @@ async function q(criteria, order = ''){
 
 //#region popups
 
-document.getElementById('close-pop').onclick = function() {closePop()};
-
-/*
-function clearPop(){
-  document.getElementById("pop-title").innerHTML=null
-  document.getElementById("pop-plot").innerHTML=null
-  document.getElementById("pop-poster").src=""
-}
-*/
-
 // Function to open the popup
 async function openPop(movieId) {
   document.getElementById("popup").classList.add('active');
-  document.getElementById("pop-content").classList.remove('active');
   document.getElementById("pop-bg").classList.add('active');
   //get data
   const docRef = doc(db, "unwatched", movieId);
@@ -244,7 +234,7 @@ async function openPop(movieId) {
   if (docSnap.exists()) {
     var data = docSnap.data()
     //console.log("Document data:", data);
-    //displays
+    //text displays
     document.getElementById("pop-title").innerHTML=data.title
     document.getElementById("pop-plot").innerHTML=data.plot
     document.getElementById("pop-year").innerHTML=data.year
@@ -255,20 +245,15 @@ async function openPop(movieId) {
     document.getElementById("pop-notes").value=data.notes
     document.getElementById("pop-csrating").value=data.csrating
     //console.log(data.services)
-    //if no services
     if(data.services.length == 0){
+      //if no services
       document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
     }
     else{
-    document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
+      //if there are services
+      document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
     }
     document.getElementById("pop-genres").innerHTML=`<div class=genre>${data.genres.join("</div><div class='genre'>")}</div>`
-    
-    /*var markup = `
-      <p class="service">${data.genres.split(",").join("<div></div>")}</p>
-    `
-    document.querySelector('.services').insertAdjacentHTML('beforeend', markup)*/
-
   } 
   else {
     // docSnap.data() will be undefined in this case
@@ -276,15 +261,35 @@ async function openPop(movieId) {
   }
   globalThis.currentId = movieId
   //console.log(currentId)
-  //document.getElementById("pop-layout").classList.remove('active');
 
   //content loaded
   document.getElementById("pop-content").classList.add('active');
   document.body.classList.add('no-scroll');
 }
 
+//triggers for closing popup
+
+document.getElementById('close-pop').onclick = function() {closePop()};
+
+// Close popup when clicking outside the content
+window.onclick = function(event) {
+  if (event.target.id === "pop-bg") {
+    closePop()
+  };
+}
+
 // there's a question as to whether we should make the triggers for closePop have an await, which would mean
 // a waterfall of async functions
+
+// Function to close the popup
+async function closePop() {
+  document.getElementById("popup").classList.remove('active');
+  document.getElementById("pop-bg").classList.remove('active');
+  document.getElementById("pop-content").classList.remove('active');
+  //allow scrolling on body
+  document.body.classList.remove('no-scroll');
+  await saveChanges();
+}
 
 async function saveChanges(){
   var csrating = document.getElementById("pop-csrating").value
@@ -296,23 +301,6 @@ async function saveChanges(){
     notes: notes,
   })
   globalThis.currentId = null
-}
-
-// Function to close the popup
-async function closePop() {
-  document.getElementById("popup").classList.remove('active');
-  document.getElementById("pop-bg").classList.remove('active');
-  document.getElementById("pop-content").classList.remove('active');
-  document.body.classList.remove('no-scroll');
-  //clearPop()
-  await saveChanges();
-}
-
-// Close popup when clicking outside the content
-window.onclick = function(event) {
-  if (event.target.id === "pop-bg") {
-    closePop()
-  };
 }
 
 //#endregion
