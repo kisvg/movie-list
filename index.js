@@ -235,7 +235,9 @@ function clearPop(){
 
 // Function to open the popup
 async function openPop(movieId) {
-  document.getElementById("loading").classList.add('active');
+  document.getElementById("popup").classList.add('active');
+  document.getElementById("pop-content").classList.remove('active');
+  document.getElementById("pop-bg").classList.add('active');
   //get data
   const docRef = doc(db, "unwatched", movieId);
   const docSnap = await getDoc(docRef);
@@ -274,8 +276,10 @@ async function openPop(movieId) {
   }
   globalThis.currentId = movieId
   //console.log(currentId)
-  document.getElementById("loading").classList.remove('active');
-  document.getElementById("popup").classList.add('active');
+  //document.getElementById("pop-layout").classList.remove('active');
+
+  //content loaded
+  document.getElementById("pop-content").classList.add('active');
   document.body.classList.add('no-scroll');
 }
 
@@ -297,6 +301,8 @@ async function saveChanges(){
 // Function to close the popup
 async function closePop() {
   document.getElementById("popup").classList.remove('active');
+  document.getElementById("pop-bg").classList.remove('active');
+  document.getElementById("pop-content").classList.remove('active');
   document.body.classList.remove('no-scroll');
   //clearPop()
   await saveChanges();

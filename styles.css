@@ -4,45 +4,41 @@
 
 /* popup stuff */
 
-.loading {
+.popup{
+    visibility: hidden;
+    
     position: fixed;
-    top: 100%; /* Start off-screen */
     left: 0;
     right: 0;
     margin: auto;
-    width: 80%;
-    height: 95%;
+    width: 75%;
     background: #ffffff;
+    padding: 20px;
     z-index: 1000;
+    height: 90%;
+    overflow-y: auto;
     box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
-    border-radius: 10px 10px 0 0;
-    
-    visibility: hidden; /* Initially hidden */
-    /*transform: translateY(10px); /* Slightly off-position for animation */
-    transition: none;
-    
+    border-radius: 10px 10px 0 0; /* only top right and top left corners */
+
+    top:100%;
+    transition: all 0.15s ease; 
 }
 
-.loading.active {
-    top: 5%;              /* Target position */
-    visibility: visible;  /* Make visible */
-    /*transform: translateY(0); /* Slide into place */
-    transition: all 0.1s ease; /* Smooth transition */
-}
+.popup.active{
+    visibility: visible;  
 
-.popup {
-    display: none; /* Hide by default */
-}
-
-.popup.active {
-    display: block; /* Show when active */
+    top: 5%;
+    transition: all 0.3s ease; 
 }
 
 .close-pop{
     cursor: pointer;
+    font-size: 20px;
 }
 
 .pop-bg {
+    visibility: hidden;
+    
     position: fixed; /* Fixes the box in place */
     top: 0;         /* Aligns the box to the top */
     left: 0;        /* Aligns the box to the left */
@@ -50,23 +46,26 @@
     height: 100vh;  /* 100% of the viewport height */
     background-color: rgba(0, 0, 0, 0.5); /* Example background color */
     z-index: 500;   /* Make sure it's above other content */
+    
+    opacity: 0;
+    transition: all 0.15s;
 }
+
+
+.pop-bg.active{
+    visibility: visible;
+    
+    opacity: 100%;
+    transition: all 0.3s;
+}
+
 
 .pop-content {
     visibility: hidden;
-    position: fixed;
-    top: 5%;
-    left: 0;
-    right: 0;
-    margin: auto;
-    width: 80%;
-    background: #ffffff;
-    padding: 20px;
-    z-index: 1000;
-    max-height: 90%;
-    overflow-y: auto;
-    box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
-    border-radius: 10px 10px 0 0; /* only top right and top left corners */
+}
+
+.pop-content.active{
+    visibility: visible;
 }
 
 .pop-grid{
@@ -91,7 +90,6 @@
 }
 
 .movie {
-    /*flex: 0 0 150px;        /* Fixed width for each movie item */
     display: flex;
     flex-direction: column; /* Stack the thumbnail and movie name vertically */
     align-items: center;
@@ -103,9 +101,6 @@
 }
 
 .poster {
-    /*width: 100%;
-    height: 100%;
-    */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -130,7 +125,6 @@
     padding: 5px;
     border: 1px solid #000000;
     border-radius: 5px;
-    /*white-space: nowrap;*/
 }
 
 .pop-genres{
@@ -144,7 +138,6 @@
     padding: 5px;
     border: 1px solid #000000;
     border-radius: 5px;
-    /*white-space: nowrap;*/
 }
 
 textarea {
