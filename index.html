@@ -9,14 +9,24 @@
         <input type="text" id="input-add-movie">
         <button id="button-add-movie">submit</button>
         
-        <div>
-            <!-- filter system -->
+        <!-- filter system -->
+        <p>filters</p>
+        <div class="chip-container" id="chip-container">
+            <div class="chip">
+                    <!--key (name)-->
+                    <p class="chip-key">type</p>
+                <div class="chip-contents">
+                    <!--operator (==)-->
+                    <!--value-->
+                    <input class="chip-value" type="text">
+                </div>
+            </div>
         </div>
 
         <div class="list" id="list">
             <!-- movies go here-->
         </div>
-
+        <!--popup stuff-->
         <div class="loading" id="loading"></div>
         <div class="pop-bg" id="pop-bg"></div>
         <div id="popup" class="popup">

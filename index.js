@@ -205,6 +205,60 @@ const update = onSnapshot(unwatchedRef, (querySnapshot) => {
 
 //#region queries
 
+
+
+/*
+{
+  name:,
+  key:,
+  operators:{
+
+  },
+  value_type:,
+},
+*/
+
+const math_operators = {
+  'is':"==",
+  'is less than':"<",
+  'is greater than':">",
+}
+
+const filters = [
+  {
+    name:"type",
+    key:"type",
+    operators:{
+      '':"==",
+    },
+    value_type:['movies','shows'],
+  },
+  {
+    name: "CSM rating",
+    key: "csrating",
+    operators: math_operators,
+    value_type:"input"
+  },
+  {
+    name:"genre",
+    key:"genres",
+    operators:{
+      '':"array-contains",
+    },
+    value_type:"input",
+  },
+  {
+    name:"RT rating",
+    key:"rtrating",
+    operators:{
+      'is over':">",
+    },
+    value_type:"input",
+  },
+]
+
+
+
 async function q(criteria, order = ''){
   if (order){
 
@@ -219,6 +273,88 @@ async function q(criteria, order = ''){
   });
   */
 }
+
+function generateChips(filters) {
+  let html = ``;
+  let keys = [];
+  filters.forEach((filter) => {
+    let operatorsHtml = ``;
+
+    // If operators shown, generate a dropdown
+    if (Object.keys(filter.operators) == ['']) {
+      operatorsHtml = ``;
+    }
+    else{
+      // For blank operators
+      if (Object.keys(filter.operators).length === 1){
+        operatorsHtml = `<p class="chip-operator">${Object.keys(filter.operators)[0]}</p>`
+      }
+      else{
+      operatorsHtml = `
+        <select name="operator" class="chip-operator">
+          ${Object.entries(filter.operators)
+            .map(([key, value]) => `<option value="${value}">${key}</option>`)
+            .join("")}
+        </select>`;
+      }
+    }
+
+    // Generate value input (input field or dropdown)
+    let valueHtml = ``;
+    if (Array.isArray(filter.value_type)) {
+      valueHtml = `
+        <select class="chip-value">
+          ${filter.value_type
+            .map((val) => `<option value="${val}">${val}</option>`)
+            .join("")}
+        </select>`;
+    } else if (filter.value_type === "input") {
+      valueHtml = `<input class="chip-value" type="text">`;
+    }
+
+    // Compile the HTML for this chip
+    html += `
+      <div class="chip" id="chip-${filter.key}">
+        <p class="chip-key">${filter.name}</p>
+        <div class="chip-contents" id="chip-contents-${filter.key}" onclick="event.stopPropagation()">
+          ${operatorsHtml}
+          ${valueHtml}
+        </div>
+      </div>
+    `;
+    
+    keys.push(filter.key)
+    
+  });
+
+  // Inject the compiled HTML into the chip-container div
+  document.getElementById("chip-container").innerHTML = html;
+
+  keys.forEach((key)=>{
+    document.getElementById(`chip-${key}`).onclick = function(){toggleFilter(key)}
+  })
+}
+
+function toggleFilter(key){
+  document.getElementById(`chip-${key}`).classList.toggle('active');
+  document.getElementById(`chip-contents-${key}`).classList.toggle('active');
+}
+
+// Call the function to generate and display chips
+generateChips(filters);
+
+
+document.getElementById("chip-container").insertAdjacentHTML("afterend", `
+<button onclick="applyFilters()">filter</button>
+`);
+
+
+
+/*q({
+  key: "year",
+  operator: "==",
+  value: "1999",
+})*/
 
 //#endregion
 
@@ -268,15 +404,8 @@ async function openPop(movieId) {
 }
 
 //triggers for closing popup
-
 document.getElementById('close-pop').onclick = function() {closePop()};
-
-// Close popup when clicking outside the content
-window.onclick = function(event) {
-  if (event.target.id === "pop-bg") {
-    closePop()
-  };
-}
+document.getElementById('pop-bg').onclick = function() {closePop()};
 
 // there's a question as to whether we should make the triggers for closePop have an await, which would mean
 // a waterfall of async functions

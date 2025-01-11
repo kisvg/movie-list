@@ -2,6 +2,54 @@
     overflow: hidden;
 }
 
+/* filters */
+
+.chip-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.chip {
+    padding: 5px 10px;
+    height:20px;
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    cursor: pointer;
+    user-select: none; /*can't select text*/
+    align-items: center;
+    display: flex;
+}
+
+.chip.active {
+    background-color: #007bff;
+    color: white;
+}
+
+.chip-key{
+    display: inline; 
+}
+
+.chip-contents{
+    display: none;
+}
+
+.chip-contents.active{
+    display: inline;
+}
+
+.chip-operator{
+    display: inline;
+    margin-left: 5px;
+}
+
+.chip-value{
+    display: inline;
+    margin-left: 5px;
+}
+
 /* popup stuff */
 
 .popup{
