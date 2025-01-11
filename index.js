@@ -57,6 +57,8 @@ const wmKeys = [
 
 //#region adding movies
 
+document.getElementById('button-add-movie').onclick = function() {addMovie(document.getElementById("input-add-movie").value)};
+
 function randKey(service) {
   if (service == "omdb") {
     var keyList = omdbKeys
@@ -69,8 +71,6 @@ function randKey(service) {
   }
   return (keyList[Math.floor(Math.random()*(keyList.length))])
 };
-
-//var newMovie = {};
 
 async function addMovie(name) {
   globalThis.newMovie = {};
@@ -107,7 +107,7 @@ async function getOmdb(name) {
   newMovie["notes"] = "" //y
   // finds object w/ rt rating
   const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
-  newMovie["rtrating"] = rtobj ? rtobj.Value : null; //y
+  newMovie["rtrating"] = Number((rtobj ? rtobj.Value : null).replace("%","")); //y
   }
   catch (error) {
     console.error('Error:', error);
@@ -231,7 +231,9 @@ const filters = [
     operators:{
       '':"==",
     },
-    value_type:['movies','shows'],
+    value_type:{
+      'movies':"movie",
+      'shows': "show"},
   },
   {
     name: "CSM rating",
@@ -256,8 +258,6 @@ const filters = [
     value_type:"input",
   },
 ]
-
-
 
 async function q(criteria, order = ''){
   if (order){
@@ -291,28 +291,25 @@ function generateChips(filters) {
       }
       else{
       operatorsHtml = `
-        <select name="operator" class="chip-operator">
+        <select name="operator" class="chip-operator" id="chip-operator-${filter.key}">
           ${Object.entries(filter.operators)
             .map(([key, value]) => `<option value="${value}">${key}</option>`)
             .join("")}
         </select>`;
       }
     }
-
-    // Generate value input (input field or dropdown)
     let valueHtml = ``;
-    if (Array.isArray(filter.value_type)) {
-      valueHtml = `
-        <select class="chip-value">
-          ${filter.value_type
-            .map((val) => `<option value="${val}">${val}</option>`)
-            .join("")}
-        </select>`;
-    } else if (filter.value_type === "input") {
-      valueHtml = `<input class="chip-value" type="text">`;
+    if (filter.value_type === "input") {
+      valueHtml = `<input class="chip-value" type="text" id="chip-value-${filter.key}">`;
     }
-
-    // Compile the HTML for this chip
+    else{
+      valueHtml = `
+      <select class="chip-value" id="chip-value-${filter.key}">
+        ${Object.entries(filter.value_type)
+          .map(([key, value]) => `<option value="${value}">${key}</option>`)
+          .join("")}
+      </select>`;
+    } 
     html += `
       <div class="chip" id="chip-${filter.key}">
         <p class="chip-key">${filter.name}</p>
@@ -336,25 +333,96 @@ function generateChips(filters) {
 }
 
 function toggleFilter(key){
+  //toggle selected
   document.getElementById(`chip-${key}`).classList.toggle('active');
+  //toggle contents shown
   document.getElementById(`chip-contents-${key}`).classList.toggle('active');
 }
 
-// Call the function to generate and display chips
 generateChips(filters);
 
+document.getElementById("chip-container").insertAdjacentHTML("afterend", `<button id="apply-filters">filter</button>`);
+document.getElementById('apply-filters').onclick = function() {applyFilters()};
 
-document.getElementById("chip-container").insertAdjacentHTML("afterend", `
-<button onclick="applyFilters()">filter</button>
-`);
+async function applyFilters(){
+  var active_chips = []
+  var queries = []
+  Array.from(document.getElementsByClassName("active chip")).forEach(element=>{
+    active_chips.push(element.id)
+  })
+  filters.forEach(filter=>{
+    if (active_chips.includes(`chip-${filter.key}`)){
+      let key = filter.key
+      try{
+        var operator = document.getElementById(`chip-operator-${key}`).value
+      }
+      catch(e){
+        var operator = Object.values(filter.operators)[0]
+      }
+      if(isNaN(Number(document.getElementById(`chip-value-${key}`).value))){
+        var value = document.getElementById(`chip-value-${key}`).value
+      }
+      else{
+        var value = Number(document.getElementById(`chip-value-${key}`).value)
+      }
+      queries.push({key:key,operator:operator,value:value})
+    }
+  })
 
+  //console.log(queries)
 
+  try {
+    // Execute all queries concurrently
+    const querySnapshots = await Promise.all(queries.map(q => getDocs(query(unwatchedRef, where(q.key,q.operator,q.value)))));
+    //populate(querySnapshots[0])
 
-/*q({
-  key: "year",
-  operator: "==",
-  value: "1999",
-})*/
+    populate_multiple(querySnapshots)
+
+  } catch (error) {
+    console.error('Error applying filters:', error);
+  }
+}
+
+//TODO: allow for zero filters
+function populate_multiple(querySnapshots){
+  // Delete previous inserted HTML
+  document.getElementById("list").innerHTML = '';
+
+  // Initialize an array to store all movies
+  let allMovies = [];
+
+  // Populate the allMovies array with the movies from each querySnapshot
+  querySnapshots.forEach(querySnapshot => {
+    const unwatched = [];
+    querySnapshot.forEach((doc) => {
+      unwatched.push({
+        id: doc.id, 
+        data: doc.data()
+      });
+    });
+    allMovies.push(unwatched);
+  });
+
+  // Find the intersection of movies across all querySnapshots
+  let commonMovies = allMovies.reduce((acc, current) => {
+    return acc.filter(movie => current.some(item => item.id === movie.id));
+  });
+
+  // Display the common movies
+  commonMovies.forEach(movie => {
+    var data = movie.data;
+    var id = movie.id;
+    var markup = `
+      <div class="movie" id="${id}">
+        <img class="poster" src="${data.poster}">
+        <h2 class="title">${data.title}</h2>
+      </div>
+    `;
+    document.querySelector('.list').insertAdjacentHTML('beforeend', markup);
+    // Triggers for opening popup
+    document.getElementById(id).onclick = function() { openPop(id); };
+  });
+}
 
 //#endregion
 
@@ -421,7 +489,17 @@ async function closePop() {
 }
 
 async function saveChanges(){
-  var csrating = document.getElementById("pop-csrating").value
+  if (document.getElementById("pop-csrating").value != ""){
+    try{
+    var csrating = Number(document.getElementById("pop-csrating").value)
+    }
+    catch(e){
+      console.log("error: number not inputted")
+    }
+  }
+  else{
+    var csrating = null
+  }
   var notes = document.getElementById("pop-notes").value
   //console.log(csrating, notes)
   var currentMovieRef = doc(db, "unwatched", currentId)
@@ -433,13 +511,3 @@ async function saveChanges(){
 }
 
 //#endregion
-
-document.getElementById('button-add-movie').onclick = function() {addMovie(document.getElementById("input-add-movie").value)};
-
-var criteria = {
-  operator: 'array-contains',
-  key: 'services',
-  value: 'Disney Plus'
-}
-
-//q(criteria)
