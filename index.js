@@ -27,6 +27,16 @@ const db = getFirestore(app);
 const unwatchedRef = collection(db, "unwatched")
 const watchedRef = collection(db, "watched")
 
+import * as service_list from './service_list.js'
+
+var serviceList = {'Disney Plus':true,'Hulu':true,'Netflix':false,'Apple TV Plus':true}
+service_list.renderServiceList(serviceList)
+document.getElementById("save-service-list").onclick = function(){saveServiceList(service_list.getServiceList())};
+
+function saveServiceList(serviceList){
+  setDoc(doc(db,"cloud","services"),serviceList)
+}
+
 //#region lists
 
 const omdbKeys = [
@@ -55,9 +65,80 @@ const wmKeys = [
 
 //#endregion
 
+//#region managing data
+
+async function sendData(root,obj) {
+  try {
+    const docRef = await addDoc(collection(db, root), obj);
+    console.log("Document written with ID: ", docRef.id
+      , "\nDocument contents:"
+    );
+    console.log(obj)
+  } catch (e) {
+    console.error("Error adding document: ", e);
+  }
+}
+
+async function moveData(root, name, destination){
+  const docRef = doc(db, root, name);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    try{
+      await setDoc(doc(db, destination, name), docSnap.data())
+      //sendData(destination,docSnap.data())
+    }
+    catch(e){
+      console.log("error sending data")
+    }
+    await deleteDoc(doc(db, root, name));
+  } else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document");
+  }
+}
+
+function populate(querySnapshot){
+  //delete previous inserted html
+  document.getElementById("list").innerHTML = '';
+  const unwatched = [];
+  querySnapshot.forEach((doc) => {
+    unwatched.push({
+      id: doc.id, 
+      data: doc.data()
+    })
+  });
+  unwatched.forEach(movie => {
+    var data = movie.data;
+    var id = movie.id;
+    var markup = `
+      <div class="movie" id="${id}">
+        <img class="poster" src="${data.poster}">
+        <h2 class="title">${data.title}</h2>
+      </div>
+    `
+    document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
+    //triggers for opening popup
+    document.getElementById(id).onclick = function() {openPop(id)};
+  });
+}
+
+// updating
+const update = onSnapshot(unwatchedRef, (querySnapshot) => {
+  populate(querySnapshot)
+});
+
+//#endregion
+
 //#region adding movies
 
+//if button clicked
 document.getElementById('button-add-movie').onclick = function() {addMovie(document.getElementById("input-add-movie").value)};
+//if enter clicked in text box
+document.getElementById('input-add-movie').addEventListener("keyup", function(event) {
+  if (event.key === "Enter") {
+    addMovie(document.getElementById("input-add-movie").value)
+  }
+})
 
 function randKey(service) {
   if (service == "omdb") {
@@ -139,72 +220,7 @@ async function getTmdb(imdbid) {
 
 //#endregion
 
-//#region managing data
-
-async function sendData(root,obj) {
-  try {
-    const docRef = await addDoc(collection(db, root), obj);
-    console.log("Document written with ID: ", docRef.id
-      , "\nDocument contents:"
-    );
-    console.log(obj)
-  } catch (e) {
-    console.error("Error adding document: ", e);
-  }
-}
-
-async function moveData(root, name, destination){
-  const docRef = doc(db, root, name);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    try{
-      await setDoc(doc(db, destination, name), docSnap.data())
-      //sendData(destination,docSnap.data())
-    }
-    catch(e){
-      console.log("error sending data")
-    }
-    await deleteDoc(doc(db, root, name));
-  } else {
-    // docSnap.data() will be undefined in this case
-    console.log("No such document");
-  }
-}
-
-function populate(querySnapshot){
-  //delete previous inserted html
-  document.getElementById("list").innerHTML = '';
-  const unwatched = [];
-  querySnapshot.forEach((doc) => {
-    unwatched.push({
-      id: doc.id, 
-      data: doc.data()
-    })
-  });
-  unwatched.forEach(movie => {
-    var data = movie.data;
-    var id = movie.id;
-    var markup = `
-      <div class="movie" id="${id}">
-        <img class="poster" src="${data.poster}">
-        <h2 class="title">${data.title}</h2>
-      </div>
-    `
-    document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
-    //triggers for opening popup
-    document.getElementById(id).onclick = function() {openPop(id)};
-  });
-}
-
-// updating
-const update = onSnapshot(unwatchedRef, (querySnapshot) => {
-  populate(querySnapshot)
-});
-
-//#endregion
-
-//#region queries
-
+//#region filters
 
 
 /*
@@ -233,7 +249,7 @@ const filters = [
     },
     value_type:{
       'movies':"movie",
-      'shows': "show"},
+      'shows': "series"},
   },
   {
     name: "CSM rating",
@@ -276,7 +292,7 @@ async function q(criteria, order = ''){
 
 function generateChips(filters) {
   let html = ``;
-  let keys = [];
+  //let keys = [];
   filters.forEach((filter) => {
     let operatorsHtml = ``;
 
@@ -320,15 +336,23 @@ function generateChips(filters) {
       </div>
     `;
     
-    keys.push(filter.key)
+    //keys.push(filter.key)
     
   });
 
   // Inject the compiled HTML into the chip-container div
   document.getElementById("chip-container").innerHTML = html;
 
-  keys.forEach((key)=>{
+  filters.forEach((filter)=>{
+    let key = filter.key
     document.getElementById(`chip-${key}`).onclick = function(){toggleFilter(key)}
+    if (filter.value_type === "input") {
+      document.getElementById(`chip-value-${key}`).addEventListener("keyup", function(event) {
+        if (event.key === "Enter") {
+            applyFilters()
+        }
+      })
+      }
   })
 }
 
