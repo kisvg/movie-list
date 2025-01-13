@@ -40,7 +40,7 @@ async function loadServiceList(){
   entries.sort((a, b) => b[1] - a[1]); // Sort true values first
   const sortedObj = Object.fromEntries(entries);
   */
-  let serviceList = Object.keys(unordered)
+  globalThis.serviceList = Object.keys(unordered)
   .sort((a, b) => unordered[b] - unordered[a])
   .reduce((acc, key) => {
     acc[key] = unordered[key];
@@ -52,7 +52,8 @@ async function loadServiceList(){
 loadServiceList()
 document.getElementById("save-service-list").onclick = function(){saveServiceList(service_list.getServiceList())};
 
-function saveServiceList(serviceList){
+export function saveServiceList(serviceList){
+  globalThis.serviceList = serviceList
   setDoc(doc(db,"cloud","services"),serviceList)
 }
 
@@ -142,6 +143,8 @@ function populate(querySnapshot){
 }
 
 // updating
+
+// this runs if firestore updates or at the very beginning
 const update = onSnapshot(unwatchedRef, (querySnapshot) => {
   populate(querySnapshot)
 });
@@ -241,6 +244,7 @@ async function getTmdb(imdbid) {
 
 //#region filters
 
+var doServiceFilter = true
 
 /*
 {
@@ -411,6 +415,12 @@ async function applyFilters(){
       queries.push({key:key,operator:operator,value:value})
     }
   })
+
+  if (doServiceFilter == true){
+    let serviceList = globalThis.serviceList
+    let serviceArray = Object.keys(serviceList).filter(key => serviceList[key])
+    queries.push({key:'services',operator:'array-contains-any',value:serviceArray})
+  }
 
   //console.log(queries)
 

@@ -1,4 +1,7 @@
 // renders service list
+
+import  {saveServiceList} from "./index.js"
+
 export async function renderServiceList(service_list){
   var html = ``
   Object.keys(service_list).forEach(service=>{
@@ -31,16 +34,7 @@ export async function renderServiceList(service_list){
   document.getElementById("service-list").innerHTML = html
   document.getElementById('service-input-last').addEventListener("keyup", handleNewServiceInput)
 
-  // enter => check
-  let elements = document.getElementsByClassName("service-input")
-  Array.from(elements).forEach((element) =>
-    element.addEventListener("keyup", function(event){
-      if (event.key === "Enter" && element.value !== ""){
-        //check the box next to it
-        element.previousElementSibling.checked = true
-      }
-    })
-  )
+  addListeners()
 }
 
 // handles keyup on last service input
@@ -48,6 +42,33 @@ export function handleNewServiceInput(event){
     if (document.getElementById('service-input-last').value!=="" && event.target.id == "service-input-last") {
         updateServiceList()
     }
+}
+
+// adds listeners to all items
+export function addListeners(){
+  let service_items = document.getElementsByClassName("service-item")
+  Array.from(service_items).forEach((service_item) =>{
+    let checkbox_element = service_item.children[0]
+    let input_element = service_item.children[1]
+    
+    // enter => check
+    input_element.addEventListener("keyup", function(event){
+      if (event.key === "Enter" && input_element.value !== ""){
+        //check the box next to it
+        checkbox_element.checked = true
+        saveServiceList(getServiceList())
+      }
+      // still buggy
+      else if (input_element.value === "" && input_element.id !== "service-input-last"){
+        service_item.remove()
+      }
+    })
+
+    // manual check toggle => update list
+    checkbox_element.addEventListener("change", function(event){
+        saveServiceList(getServiceList())
+    })
+  })
 }
 
 // when new service added, inject html with space for another to be added
@@ -61,16 +82,8 @@ export function updateServiceList(){
   document.getElementById('service-input-last').removeAttribute("id")
   document.getElementById('service-input-last-placeholder').id = "service-input-last"
   document.getElementById('service-input-last').addEventListener("keyup", handleNewServiceInput)
-  // reassign enter => check for all inputs
-  let elements = document.getElementsByClassName("service-input")
-  Array.from(elements).forEach((element) =>
-    element.addEventListener("keyup", function(event){
-      if (event.key === "Enter" && element.value !== ""){
-        //check the box next to it
-        element.previousElementSibling.checked = true
-      }
-    })
-)
+  // reassign listeners
+  addListeners()
 }
 
 export function getServiceList(){
