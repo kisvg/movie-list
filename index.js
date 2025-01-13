@@ -29,8 +29,27 @@ const watchedRef = collection(db, "watched")
 
 import * as service_list from './service_list.js'
 
-var serviceList = {'Disney Plus':true,'Hulu':true,'Netflix':false,'Apple TV Plus':true}
-service_list.renderServiceList(serviceList)
+// I mean it doesn't really matter but WHY are they not always in the same order Google
+async function loadServiceList(){
+  let docRef = doc(db, "cloud", "services");
+  let docSnap = await getDoc(docRef);
+  let unordered = docSnap.data()
+  // not the best way, but it works. alternative (that I think does the same thing):
+  /*
+  const entries = Object.entries(obj);
+  entries.sort((a, b) => b[1] - a[1]); // Sort true values first
+  const sortedObj = Object.fromEntries(entries);
+  */
+  let serviceList = Object.keys(unordered)
+  .sort((a, b) => unordered[b] - unordered[a])
+  .reduce((acc, key) => {
+    acc[key] = unordered[key];
+    return acc;
+  }, {})
+  service_list.renderServiceList(serviceList)
+}
+
+loadServiceList()
 document.getElementById("save-service-list").onclick = function(){saveServiceList(service_list.getServiceList())};
 
 function saveServiceList(serviceList){
