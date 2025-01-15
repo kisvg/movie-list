@@ -50,36 +50,43 @@ export function addListeners(){
   Array.from(service_items).forEach((service_item) =>{
     let checkbox_element = service_item.children[0]
     let input_element = service_item.children[1]
-    
-    // enter => check
-    input_element.addEventListener("keyup", function(event){
-      if (event.key === "Enter" && input_element.value !== ""){
-        //check the box next to it
-        checkbox_element.checked = true
-        saveServiceList(getServiceList())
-      }
-      // still buggy
-      else if (input_element.value === "" && input_element.id !== "service-input-last"){
-        service_item.remove()
-      }
-    })
+    //if no event listeners attatched
+    if (!(service_item.hasAttribute("listeners-attached"))){
+      service_item.setAttribute("listeners-attached", "true")
+      // if keyup on input
+      input_element.addEventListener("keyup", function(event){
+        // enter => check
+        if (event.key === "Enter" && input_element.value !== ""){
+          //check the box next to it
+          checkbox_element.checked = true
+          saveServiceList(getServiceList())
+        }
+        // removes item if service input is blank
+        else if (input_element.value === "" && input_element.id !== "service-input-last"){
+          service_item.remove()
+        }
+      })
+      // end if keyup on input
 
-    // manual check toggle => update list
-    checkbox_element.addEventListener("change", function(event){
-        saveServiceList(getServiceList())
-    })
+      // manual check toggle => update list
+      checkbox_element.addEventListener("change", function(event){
+          saveServiceList(getServiceList())
+      })
+
+    }// end if no event listeners attatched
   })
 }
 
 // when new service added, inject html with space for another to be added
 export function updateServiceList(){
-  document.getElementById('service-input-last').insertAdjacentHTML("afterend",`
+  document.getElementById('service-list').insertAdjacentHTML("beforeend", `
       <div class="service-item">
       <input type="checkbox" class="checkbox"/>
       <input type="text" class="service-input" placeholder="Enter streaming service..." id="service-input-last-placeholder"></input>
       </div>
   `)
-  document.getElementById('service-input-last').removeAttribute("id")
+
+  document.getElementById('service-input-last').id = "service-input"
   document.getElementById('service-input-last-placeholder').id = "service-input-last"
   document.getElementById('service-input-last').addEventListener("keyup", handleNewServiceInput)
   // reassign listeners

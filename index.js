@@ -55,6 +55,9 @@ document.getElementById("save-service-list").onclick = function(){saveServiceLis
 export function saveServiceList(serviceList){
   globalThis.serviceList = serviceList
   setDoc(doc(db,"cloud","services"),serviceList)
+
+  //apply filters now that services are updated
+  applyFilters()
 }
 
 //#region lists
@@ -146,7 +149,8 @@ function populate(querySnapshot){
 
 // this runs if firestore updates or at the very beginning
 const update = onSnapshot(unwatchedRef, (querySnapshot) => {
-  populate(querySnapshot)
+  //populate(querySnapshot)
+  applyFilters()
 });
 
 //#endregion
@@ -244,7 +248,10 @@ async function getTmdb(imdbid) {
 
 //#region filters
 
-var doServiceFilter = true
+function toggleServiceFilter(){
+  //wip
+  globalThis.doServiceFilter = !doServiceFilter
+}
 
 /*
 {
@@ -363,8 +370,29 @@ function generateChips(filters) {
     
   });
 
+  // add services filter
+  html+=`
+    <div class="chip" id="chip-services">
+    <p class="chip-key">free to me</p>
+    <div class="chip-contents" id="chip-contents-services">
+    </div>
+  </div>
+  `
+
   // Inject the compiled HTML into the chip-container div
   document.getElementById("chip-container").innerHTML = html;
+
+  // make services filter toggleable
+  document.getElementById(`chip-services`).onclick = function(){
+    toggleFilter('services');
+    toggleServiceFilter()
+    applyFilters()
+  }
+
+  //make service filter toggled initially (by default)
+  globalThis.doServiceFilter = true
+  document.getElementById(`chip-services`).classList.toggle('active')
+  
 
   filters.forEach((filter)=>{
     let key = filter.key
@@ -416,23 +444,28 @@ async function applyFilters(){
     }
   })
 
-  if (doServiceFilter == true){
+  if (globalThis.doServiceFilter == true){
     let serviceList = globalThis.serviceList
     let serviceArray = Object.keys(serviceList).filter(key => serviceList[key])
     queries.push({key:'services',operator:'array-contains-any',value:serviceArray})
   }
 
-  //console.log(queries)
+  if (queries.length != 0){
+    // if there are any filters
+    try {
+      // Execute all queries concurrently
+      const querySnapshots = await Promise.all(queries.map(q => getDocs(query(unwatchedRef, where(q.key,q.operator,q.value)))));
+      //populate(querySnapshots[0])
 
-  try {
-    // Execute all queries concurrently
-    const querySnapshots = await Promise.all(queries.map(q => getDocs(query(unwatchedRef, where(q.key,q.operator,q.value)))));
-    //populate(querySnapshots[0])
+      populate_multiple(querySnapshots)
 
-    populate_multiple(querySnapshots)
-
-  } catch (error) {
-    console.error('Error applying filters:', error);
+    } catch (error) {
+      console.error('Error applying filters:', error);
+    }
+  }
+  else{
+    //if there are no filters
+    console.log("no filters")
   }
 }
 
