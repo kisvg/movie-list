@@ -29,6 +29,10 @@ const watchedRef = collection(db, "watched")
 
 import * as service_list from './service_list.js'
 
+document.getElementById('edit-services').onclick = function(){
+  document.getElementById('service-list-container').classList.toggle('active')
+}
+
 // I mean it doesn't really matter but WHY are they not always in the same order Google
 async function loadServiceList(){
   let docRef = doc(db, "cloud", "services");
@@ -58,6 +62,10 @@ export function saveServiceList(serviceList){
 
   //apply filters now that services are updated
   applyFilters()
+}
+
+function lowerArray(array){
+  return array.map(item => item.toLowerCase())
 }
 
 //#region lists
@@ -233,11 +241,13 @@ async function getTmdb(imdbid) {
   var services = [];
   //if there are any flatrates
   if(data){
-  data.forEach(item => {
-    services.push(item.provider_name)
-  });
+    data.forEach(item => {
+      services.push(item.provider_name)
+    });
   }
+  let services_lower = lowerArray(services)
   newMovie["services"] = services; //y
+  newMovie["services_lower"] = services_lower
     }
     catch (error) {
       console.error('Error:', error);
@@ -446,8 +456,8 @@ async function applyFilters(){
 
   if (globalThis.doServiceFilter == true){
     let serviceList = globalThis.serviceList
-    let serviceArray = Object.keys(serviceList).filter(key => serviceList[key])
-    queries.push({key:'services',operator:'array-contains-any',value:serviceArray})
+    let serviceArray = lowerArray(Object.keys(serviceList).filter(key => serviceList[key]))
+    queries.push({key:'services_lower',operator:'array-contains-any',value:serviceArray})
   }
 
   if (queries.length != 0){
@@ -465,7 +475,8 @@ async function applyFilters(){
   }
   else{
     //if there are no filters
-    console.log("no filters")
+    let querySnapshot = await getDocs(unwatchedRef)
+    populate(querySnapshot)
   }
 }
 

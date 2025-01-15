@@ -4,6 +4,14 @@
 
 /* filters */
 
+.service-list-container{
+    display:none;
+}
+
+.service-list-container.active{
+    display: block;
+}
+
 .chip-container {
     display: flex;
     flex-wrap: nowrap;
