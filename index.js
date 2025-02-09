@@ -107,6 +107,7 @@ async function sendData(root,obj) {
     console.log(obj)
   } catch (e) {
     console.error("Error adding document: ", e);
+    // ('Item could not be added to MovieList')
   }
 }
 
@@ -202,27 +203,37 @@ async function getInfo(name) {
 // Make GET request for general movie info
 async function getOmdb(name) {
   try{
-  const response = await fetch("https://www.omdbapi.com/?t="+name+"&plot=full&apikey="+randKey("omdb"))
-  if (!response.ok) {
-    throw new Error('Response was not ok');
-  }
-  const data = await response.json();
-  // add relevant data from response to newMovie
-  newMovie["timestamp"] = serverTimestamp(); //n (displayed?)
-  newMovie["title"] = data.Title; //y
-  newMovie["csrating"] = null; //y
-  newMovie["imdbid"] = data.imdbID; //n
-  newMovie["poster"] = data.Poster; //y
-  newMovie["runtime"] = data.Runtime; //n
-  newMovie["type"] = data.Type; //n
-  newMovie["plot"] = data.Plot; //y
-  newMovie["genres"] = data.Genre.split(", "); //y
-  newMovie["year"] = data.Year; //y
-  newMovie["releasedate"] = data.Released; //n
-  newMovie["notes"] = "" //y
-  // finds object w/ rt rating
-  const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
-  newMovie["rtrating"] = Number((rtobj ? rtobj.Value : null).replace("%","")); //y
+    const response = await fetch("https://www.omdbapi.com/?t="+name+"&plot=full&apikey="+randKey("omdb"))
+    if (!response.ok) {
+      throw new Error('Response was not ok');
+    }
+    const data = await response.json();
+    // add relevant data from response to newMovie
+    newMovie["timestamp"] = serverTimestamp(); //n (displayed?)
+    newMovie["title"] = data.Title; //y
+    newMovie["csrating"] = null; //y
+    newMovie["imdbid"] = data.imdbID; //n
+    newMovie["poster"] = data.Poster; //y
+    newMovie["runtime"] = data.Runtime; //n
+    newMovie["type"] = data.Type; //n
+    newMovie["plot"] = data.Plot; //y
+    newMovie["year"] = data.Year; //y
+    newMovie["releasedate"] = data.Released; //n
+    newMovie["notes"] = "" //y
+
+    let genres = data.Genre.split(", "); //y
+    let genres_lower = lowerArray(genres)
+    newMovie["genres"] = genres; //y
+    newMovie["genres_lower"] = genres_lower
+
+    // finds object w/ rt rating
+    try{
+      const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
+      newMovie["rtrating"] = Number((rtobj ? rtobj.Value : null).replace("%","")); //y
+    }
+    catch(error){
+      console.error('Error:', error);
+    }
   }
   catch (error) {
     console.error('Error:', error);
@@ -257,11 +268,6 @@ async function getTmdb(imdbid) {
 //#endregion
 
 //#region filters
-
-function toggleServiceFilter(){
-  //wip
-  globalThis.doServiceFilter = !doServiceFilter
-}
 
 /*
 {
@@ -299,7 +305,7 @@ const filters = [
   },
   {
     name:"genre",
-    key:"genres",
+    key:"genres_lower",
     operators:{
       '':"array-contains",
     },
@@ -395,8 +401,6 @@ function generateChips(filters) {
   // make services filter toggleable
   document.getElementById(`chip-services`).onclick = function(){
     toggleFilter('services');
-    toggleServiceFilter()
-    applyFilters()
   }
 
   //make service filter toggled initially (by default)
@@ -422,6 +426,10 @@ function toggleFilter(key){
   document.getElementById(`chip-${key}`).classList.toggle('active');
   //toggle contents shown
   document.getElementById(`chip-contents-${key}`).classList.toggle('active');
+  if(key == 'services'){
+    globalThis.doServiceFilter = !doServiceFilter
+    applyFilters();
+  }
 }
 
 generateChips(filters);
@@ -445,9 +453,12 @@ async function applyFilters(){
         var operator = Object.values(filter.operators)[0]
       }
       if(isNaN(Number(document.getElementById(`chip-value-${key}`).value))){
-        var value = document.getElementById(`chip-value-${key}`).value
+        // if it is a string
+        var value = document.getElementById(`chip-value-${key}`).value.toLowerCase()
+        // makes all inputs received as lowercase
       }
       else{
+        // if it is a number
         var value = Number(document.getElementById(`chip-value-${key}`).value)
       }
       queries.push({key:key,operator:operator,value:value})
@@ -546,13 +557,19 @@ async function openPop(movieId) {
     document.getElementById("pop-notes").value=data.notes
     document.getElementById("pop-csrating").value=data.csrating
     //console.log(data.services)
-    if(data.services.length == 0){
-      //if no services
-      document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
+    try{
+      if(data.services.length == 0){
+        //if no services
+        document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
+      }
+      else{
+        //if there are services
+        document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
+      }
     }
-    else{
-      //if there are services
-      document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
+    catch(e){
+      // because that might not work for some reason
+      document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
     }
     document.getElementById("pop-genres").innerHTML=`<div class=genre>${data.genres.join("</div><div class='genre'>")}</div>`
   } 
@@ -591,7 +608,7 @@ async function saveChanges(){
     var csrating = Number(document.getElementById("pop-csrating").value)
     }
     catch(e){
-      console.log("error: number not inputted")
+      console.log("Error: number not inputted")
     }
   }
   else{
@@ -606,5 +623,22 @@ async function saveChanges(){
   })
   globalThis.currentId = null
 }
+
+//#endregion
+
+//#region etc
+
+// to transfer files from spreadsheet. extreme jank warning.
+
+/*
+async function addMM(movies){
+  for (const movie of movies) {
+    await addMovie(movie)
+  };
+}
+
+let movies = ['American Dreamer','Bambi','Battle of the Sexes','Better Nate Than Ever','Bourne','Boyhood','Bridge to Terabithia','Clueless','Deaf Mute Heroine','Enchanted','Fantasia','Gilmore Girls','Ginny & Georgia','The Diplomat','Hollywood Stargirl','Into the Night','Irresistible','James Bond ','Knight and Day','Life Animated','Lord of the Rings','Mission Impossible ','Nick & Noras Infinite Playlist','Nomadland','Pantheon','Passengers','Planet of the Apes','Pop Star','Rocks','Say Anything','See You Yesterday','Sex Education','Shake the Dust','Short Circuit','Song of the Sea','Spaceship Earth','Sword of the Stranger','Tar','Ted Lasso','Tekkonkinkreet','The Call of the Wild','The Duff','The Kissing Booth','The Sandlot','The Way Way Back','Three Amigos','Time Travelers Wife','To Kill a Mockingbird','Umbrella Academy','Waltz with Bashir','Whats so Bad About Feeling Good?','Where to Invade Next','White Fang','Winter Days','Rocks','Fantastic Fungi','El Chivo','Lost City','The Prince of Egypt','Promare','The Secret of Kells','Endless Summer','1000 Me','Americanish','Kundun','Tony Hawk','Miss Congeniality','Super 8','Brothers of the Wind','Tonight Youre Mine','Dancer in the Dark','China Blue','The Point of No Return','La Femme Nikita','Beef','Dog Gone','Casa de papel','Divergent ','Cyrano','Creed','Brigsby Bear','Map of Tiny Perfect Things','Miss Juneteenth','Fried Green Tomatoes','The Sisterhood of the Traveling Pants','Gran Turismo','Archies','Family Switch','13 the musical','Secret Diary of an Exchange Student','Blackpink: Light up the sky','The Italian Job','Now You See Me','Logan Lucky','Theory of everything','Liar liar','Dumplin','500 days of summer','My Spy','One Piece: Baron Omatsuri and the Secret Island','Alien','Fight Club','Snatch','Pulp Fiction','Mcfarland USA','Nine to Five','Sharper','Death at a Funeral','Woman King','Bottle Shock','Conclave']
+//addMM(movies)
+*/
 
 //#endregion
