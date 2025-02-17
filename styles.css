@@ -45,7 +45,7 @@ textarea {
 }
 
 /* hide list view elements (details) if grid view */
-.list.grid-view .details{
+.list.grid-view .cell:not(.title){
     display: none;
 }
 
@@ -85,9 +85,11 @@ textarea {
 
 .list-view .cell{
     display: table-cell;
+    /*border: 1px solid #595959;*/
+    padding-right: max(20px,auto);
 }
 
-.list-view p,h2{
+.list-view p,.list-view h2{
     font-weight: normal;
     font-size: x-large;
 }
@@ -97,10 +99,6 @@ textarea {
 }
 
 .list-view .title{
-
-}
-
-.list-view .details{
 
 }
 

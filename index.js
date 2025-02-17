@@ -146,59 +146,6 @@ async function moveData(root, name, destination){
   }
 }
 
-function movieElement(movie) {
-  let data = movie.data;
-  let id = movie.id;
-  let markup = `
-    <div class="movie row" id="${id}">
-      <img class="poster" src="${data.poster}">
-      <h2 class="title cell">${data.title}</h2>
-      <span class="details">
-        <p class="rtrating cell">${data.rtrating}</p>
-      </span>
-    </div>
-  `
-  return markup
-  
-}
-
-function clearList(){
-  //only leave column headers
-  document.getElementById("list").innerHTML = `
-  <div class="headers row">
-    <div class="header">Title</div>
-    <div class="header">RottenTomatoes Rating</div>
-  </div>
-  `;
-}
-
-function populate(querySnapshot){
-  //delete previous inserted html
-  clearList();
-  const unwatched = [];
-  querySnapshot.forEach((doc) => {
-    unwatched.push({
-      id: doc.id, 
-      data: doc.data()
-    })
-  });
-  unwatched.forEach(movie => {
-    var markup = movieElement(movie)
-    document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
-    //triggers for opening popup
-    let id = movie.id
-    document.getElementById(id).onclick = function() {openPop(id)};
-  });
-}
-
-// updating
-
-// this runs if firestore updates or at the very beginning
-const update = onSnapshot(unwatchedRef, (querySnapshot) => {
-  //populate(querySnapshot)
-  applyFilters()
-});
-
 //#endregion
 
 //#region adding movies
@@ -246,8 +193,8 @@ async function getOmdb(name) {
     }
     const data = await response.json();
     // add relevant data from response to newMovie
-    newMovie["timestamp"] = serverTimestamp(); //n (displayed?)
-    newMovie["title"] = data.Title; //y
+    newMovie["title"] = data.Title; //y (displayed?)
+    newMovie["timestamp"] = serverTimestamp(); //n 
     newMovie["csrating"] = null; //y
     newMovie["imdbid"] = data.imdbID; //n
     newMovie["poster"] = data.Poster; //y
@@ -357,6 +304,67 @@ const filters = [
     value_type:"input",
   },
 ]
+
+var table_columns={
+  // this is always force displayed
+  //title:{header:"Title", display:true},
+  // timestamp shows up funny because firebase
+  timestamp:{header:"Time Added", display:false},
+  csrating:{header:"CommonSense Rating", display:true},
+  runtime:{header:"Length", display:true},
+  // either "movie" or "series"
+  type:{header:"Type", display:false},
+  year:{header:"Year Released", display:true},
+  releasedate:{header:"Release Date", display:false},
+  notes:{header:"Notes", display:false},
+  rtrating:{header:"RottenTomatoes Rating", display:true},
+}
+
+function movieElement(movie) {
+  let data = movie.data;
+  let id = movie.id;
+  let markup = `
+    <div class="movie row" id="${id}">
+      <img class="poster" src="${data.poster}">
+      <h2 class="title cell">${data.title}</h2>
+      <!--details-->
+    `
+  Object.keys(table_columns).forEach(key =>{
+    if(table_columns[key]["display"]){
+      markup += `<p class="${key} cell">${data[key]}</p>`
+    }
+  })
+  markup+=`
+    </div>
+  `
+  return markup
+  
+}
+
+function clearList(){
+  //only leave column headers
+  let markup = `
+  <div class="headers row">
+    <p class="header">Title</p>
+  `
+  Object.keys(table_columns).forEach(key =>{
+    if(table_columns[key]["display"]){
+      markup += `<p class="header">${table_columns[key]["header"]}</p>`
+    }
+  })
+  markup+=`
+    </div>
+  `
+  document.getElementById("list").innerHTML = markup;
+}
+
+// updating
+
+// this runs if firestore updates or at the very beginning
+const update = onSnapshot(unwatchedRef, (querySnapshot) => {
+  //populate(querySnapshot)
+  applyFilters()
+});
 
 async function q(criteria, order = ''){
   if (order){
@@ -528,7 +536,8 @@ async function applyFilters(){
   }
 }
 
-//TODO: allow for zero filters
+// TODO: allow for zero filters
+// did I do this?
 function populate_multiple(querySnapshots){
   // Delete previous inserted HTML
   clearList();
@@ -560,6 +569,25 @@ function populate_multiple(querySnapshots){
     // Triggers for opening popup
     let id = movie.id
     document.getElementById(id).onclick = function() { openPop(id); };
+  });
+}
+
+function populate(querySnapshot){
+  //delete previous inserted html
+  clearList();
+  const unwatched = [];
+  querySnapshot.forEach((doc) => {
+    unwatched.push({
+      id: doc.id, 
+      data: doc.data()
+    })
+  });
+  unwatched.forEach(movie => {
+    var markup = movieElement(movie)
+    document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
+    //triggers for opening popup
+    let id = movie.id
+    document.getElementById(id).onclick = function() {openPop(id)};
   });
 }
 
