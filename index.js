@@ -68,6 +68,23 @@ function lowerArray(array){
   return array.map(item => item.toLowerCase())
 }
 
+//#region ui
+
+// TODO: change based on user preference
+document.getElementById("list").classList.add("list-view");
+
+document.getElementById("button-list").onclick = function(){
+  document.getElementById("list").classList.add("list-view");
+  document.getElementById("list").classList.remove("grid-view");
+}
+document.getElementById("button-grid").onclick = function(){
+  document.getElementById("list").classList.remove("list-view");
+  document.getElementById("list").classList.add("grid-view");
+}
+
+
+//#endregion
+
 //#region lists
 
 const omdbKeys = [
@@ -129,9 +146,35 @@ async function moveData(root, name, destination){
   }
 }
 
+function movieElement(movie) {
+  let data = movie.data;
+  let id = movie.id;
+  let markup = `
+    <div class="movie row" id="${id}">
+      <img class="poster" src="${data.poster}">
+      <h2 class="title cell">${data.title}</h2>
+      <span class="details">
+        <p class="rtrating cell">${data.rtrating}</p>
+      </span>
+    </div>
+  `
+  return markup
+  
+}
+
+function clearList(){
+  //only leave column headers
+  document.getElementById("list").innerHTML = `
+  <div class="headers row">
+    <div class="header">Title</div>
+    <div class="header">RottenTomatoes Rating</div>
+  </div>
+  `;
+}
+
 function populate(querySnapshot){
   //delete previous inserted html
-  document.getElementById("list").innerHTML = '';
+  clearList();
   const unwatched = [];
   querySnapshot.forEach((doc) => {
     unwatched.push({
@@ -140,16 +183,10 @@ function populate(querySnapshot){
     })
   });
   unwatched.forEach(movie => {
-    var data = movie.data;
-    var id = movie.id;
-    var markup = `
-      <div class="movie" id="${id}">
-        <img class="poster" src="${data.poster}">
-        <h2 class="title">${data.title}</h2>
-      </div>
-    `
+    var markup = movieElement(movie)
     document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
     //triggers for opening popup
+    let id = movie.id
     document.getElementById(id).onclick = function() {openPop(id)};
   });
 }
@@ -494,7 +531,7 @@ async function applyFilters(){
 //TODO: allow for zero filters
 function populate_multiple(querySnapshots){
   // Delete previous inserted HTML
-  document.getElementById("list").innerHTML = '';
+  clearList();
 
   // Initialize an array to store all movies
   let allMovies = [];
@@ -518,16 +555,10 @@ function populate_multiple(querySnapshots){
 
   // Display the common movies
   commonMovies.forEach(movie => {
-    var data = movie.data;
-    var id = movie.id;
-    var markup = `
-      <div class="movie" id="${id}">
-        <img class="poster" src="${data.poster}">
-        <h2 class="title">${data.title}</h2>
-      </div>
-    `;
+    var markup = movieElement(movie);
     document.querySelector('.list').insertAdjacentHTML('beforeend', markup);
     // Triggers for opening popup
+    let id = movie.id
     document.getElementById(id).onclick = function() { openPop(id); };
   });
 }

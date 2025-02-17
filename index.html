@@ -3,12 +3,18 @@
     <head>
         <title>Movie List</title>
         <link rel="stylesheet" href="styles.css">
+        <!-- Load Font Awesome Icon Library -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     </head>
     <body>
         <p>add movie:</p>
         <input type="text" id="input-add-movie">
         <button id="button-add-movie">&plus;</button>
 
+        <!-- Buttons to choose list or grid view -->
+        <button id="button-grid"><i class="fa fa-th-large"></i> Grid</button>
+        <button id="button-list"><i class="fa fa-bars"></i> List</button>
 
         <!--service list-->
         <button id="edit-services">edit services</button>
@@ -19,6 +25,7 @@
             </div>
             <button id="save-service-list">save</button>
         </div>
+
         <!-- filter system -->
         <p>filters</p>
         <div class="chip-container" id="chip-container">
@@ -27,6 +34,7 @@
         <div class="list" id="list">
             <!-- movies go here-->
         </div>
+
         <!--popup stuff-->
         <div class="loading" id="loading"></div>
         <div class="pop-bg" id="pop-bg"></div>

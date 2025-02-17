@@ -2,7 +2,116 @@
     overflow: hidden;
 }
 
-/* filters */
+textarea {
+    resize: none;
+    width: 100%;
+    height: 100px;
+}
+
+#button-list,#button-grid{
+    float: right;
+}
+
+/*#region grid view */
+
+.list.grid-view{
+    display: flex;
+    flex-wrap: wrap;       /* Allows movies to wrap onto a new line */
+    gap: 15px;             /* Space between each movie item */
+}
+
+.grid-view .movie {
+    display: flex;
+    flex-direction: column; /* Stack the thumbnail and movie name vertically */
+    align-items: center;
+    text-align: center;
+    border-radius: 15px;
+    background: #cccccc;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.grid-view .poster {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    border-radius: 5px;
+    grid-column: 1;
+}
+
+.grid-view .title {
+
+}
+
+/* hide list view elements (details) if grid view */
+.list.grid-view .details{
+    display: none;
+}
+
+/* hide headers if grid view */
+.list.grid-view .headers{
+    display: none;
+}
+
+/*#endregion grid view */
+
+/*#region list view */
+
+.list.list-view{
+    display: table;
+    width: 100%;
+}
+
+.list-view .row{
+    display: table-row;
+    padding: 8px;
+}
+
+.list-view .row:nth-child(even){
+    background-color: #f2f2f2;
+}
+
+.list-view .row:not(.headers):hover {
+    background-color: #ddd;
+}
+
+.list-view .header{
+    display: table-cell;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+}
+
+.list-view .cell{
+    display: table-cell;
+}
+
+.list-view p,h2{
+    font-weight: normal;
+    font-size: x-large;
+}
+
+.list-view .poster{
+    display: none;
+}
+
+.list-view .title{
+
+}
+
+.list-view .details{
+
+}
+
+.rtrating{
+    
+}
+
+/*#endregion list view*/
+
+
+/*#region filters */
 
 .service-list-container{
     display:none;
@@ -58,7 +167,9 @@
     margin-left: 5px;
 }
 
-/* popup stuff */
+/*#endregion filters*/
+
+/*#region popup*/
 
 .popup{
     visibility: hidden;
@@ -139,36 +250,6 @@
     grid-column: 2;
 }
 
-.list{
-    display: flex;
-    flex-wrap: wrap;       /* Allows movies to wrap onto a new line */
-    gap: 15px;             /* Space between each movie item */
-}
-
-.movie {
-    display: flex;
-    flex-direction: column; /* Stack the thumbnail and movie name vertically */
-    align-items: center;
-    text-align: center;
-    border-radius: 15px;
-    background: #cccccc;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.poster {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    border-radius: 5px;
-    grid-column: 1;
-}
-
-.name {
-    margin-top: 8px;        /* Space between the poster and movie name */
-}
-
 .pop-services{
     display: flex;
     justify-content: flex-start;
@@ -196,8 +277,4 @@
     border-radius: 5px;
 }
 
-textarea {
-    resize: none;
-    width: 100%;
-    height: 100px;
- }
+/*#endregion popup*/
