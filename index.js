@@ -72,12 +72,17 @@ function lowerArray(array){
 
 // TODO: change based on user preference
 document.getElementById("list").classList.add("list-view");
+document.getElementById("button-list").classList.add("active");
 
 document.getElementById("button-list").onclick = function(){
+  document.getElementById("button-list").classList.add("active");
+  document.getElementById("button-grid").classList.remove("active");
   document.getElementById("list").classList.add("list-view");
   document.getElementById("list").classList.remove("grid-view");
 }
 document.getElementById("button-grid").onclick = function(){
+  document.getElementById("button-grid").classList.add("active");
+  document.getElementById("button-list").classList.remove("active");
   document.getElementById("list").classList.remove("list-view");
   document.getElementById("list").classList.add("grid-view");
 }

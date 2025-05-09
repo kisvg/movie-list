@@ -10,6 +10,11 @@ textarea {
 
 #button-list,#button-grid{
     float: right;
+    background-color: #ffffff;
+}
+
+#button-list.active,#button-grid.active{
+    background-color: #007bff;
 }
 
 /*#region grid view */
