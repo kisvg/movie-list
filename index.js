@@ -54,8 +54,9 @@ function addTriggers(){
   document.getElementById('edit-services').onclick = function(){
     document.getElementById('service-list-container').classList.toggle('active')
   }
-  document.getElementById("save-service-list").onclick = function(){
-    saveServiceList(service_list.getServiceList())
+  document.getElementById("save-service-list").onclick = async function(){
+    await saveServiceList(service_list.getServiceList())
+    displayNotification("Service List Saved")
   };
   //add movie
   document.getElementById('button-add-movie').onclick = function() {
@@ -113,12 +114,11 @@ function delay(time) {
 }
 */
 
-export function saveServiceList(serviceList){
+export async function saveServiceList(serviceList){
   globalThis.serviceList = serviceList
-  setDoc(doc(db,"cloud","services"),serviceList)
-
   //apply filters now that services are updated
   applyFilters()
+  await setDoc(doc(db,"cloud","services"),serviceList)
 }
 
 // TODO: change based on user preference
@@ -812,8 +812,6 @@ function displayNotification(message, isGood = true, time = 5){
     }, time);
   }
 }
-
-displayNotification("hi",true)
 
 //#region etc
 

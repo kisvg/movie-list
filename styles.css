@@ -1,9 +1,11 @@
+/*#region theme */
+
 /* I think the naming conventions are wrong here but ah well */
 :root {
     --clr-accent: rgb(90, 62, 191);
     
     --clr-bg: rgb(20,20,20);
-    --clr-primary: rgb(30,30,30);
+    --clr-primary: rgb(28,28,28);
     --clr-secondary: rgb(40,40,40);
     /*--clr-tertiary: rgb(70,70,70);*/
     --clr-ghost: rgb(60,60,60);
@@ -46,6 +48,18 @@ button{
     background-color: var(--clr-primary);
     border-radius: 5px;
     border-color: white;
+    margin: 5px;
+}
+
+.ghost{
+    color: var(--clr-ghost);
+}
+
+/*#endregion theme */
+
+
+#save-service-list{
+    margin-top: 5px;
 }
 
 #button-list,#button-grid{
@@ -62,10 +76,6 @@ button{
     background-color: var(--clr-accent);
 }
 
-.ghost{
-    color: var(--clr-ghost);
-}
-
 .movie{
     cursor: pointer;
 }
@@ -76,7 +86,9 @@ button{
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    align-items: center;
+    align-items: flex-start;
+    flex-direction: row;
+    /*justify-content: center;*/
 }
 
 .grid-view .movie {
@@ -86,14 +98,16 @@ button{
     text-align: center;
     border-radius: 15px;
     background: var(--clr-primary);
-    padding: 10px;
-    width: 15vw;
+    padding: 10px 10px 0 10px;
+    width: 190px;
+    min-height: 360px;
+
 }
 
 .grid-view .poster {
     display: flex;
     align-items: center;
-    justify-content: center;
+    /*justify-content: center;*/
     font-size: 15px;
     border-radius: 5px;
     grid-column: 1;
@@ -101,7 +115,7 @@ button{
 }
 
 .grid-view .title {
-
+    margin-bottom: 5px;
 }
 
 /* hide list view elements (details) if grid view */
@@ -171,6 +185,10 @@ button{
 
 /*#region filters */
 
+#apply-filters{
+    margin: 10px 0 15px 0;
+}
+
 .service-list-container{
     display:none;
 }
@@ -183,7 +201,6 @@ button{
     display: flex;
     flex-wrap: nowrap;
     gap: 8px;
-    margin-bottom: 20px;
 }
 
 .chip {
@@ -334,6 +351,15 @@ button{
 .genre{
 }
 */
+
+#pop-poster{
+    border-radius: 5px;
+}
+
+#pop-notes{
+    margin-bottom: 5vh;
+}
+
 /*#endregion popup*/
 
 #notification{
