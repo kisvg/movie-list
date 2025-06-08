@@ -204,26 +204,24 @@ async function getTmdb(name) {
     let data = initialdata.results[0]
     console.log(data)
     let tmdbid = data.id
+    let type = data.media_type
     newMovie["tmdbid"] = tmdbid //n (displayed?)
+    newMovie["type"] = type //n
     newMovie["timestamp"] = serverTimestamp(); //n 
     newMovie["poster"] = "https://image.tmdb.org/t/p/w300_and_h450_bestv2"+data.poster_path //y
-    newMovie["type"] = data.media_type //n
     newMovie["plot"] = data.overview //y
     newMovie["csrating"] = null; //y
     newMovie["notes"] = "" //y
-    initialdata = await get ("https://api.themoviedb.org/3/movie/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
+    initialdata = await get ("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
     newMovie["imdbid"] = initialdata.imdb_id //n
     // now for the streaming services
-    let url
     if (newMovie.type == "tv"){
-      url = "https://api.themoviedb.org/3/tv/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb")
       newMovie["title"] = data.name //y
     }
     else{
-      url = "https://api.themoviedb.org/3/movie/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb")
       newMovie["title"] = data.title //y
     }
-    initialdata = await get(url)
+    initialdata = await get("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb"))
     data = initialdata.results.US?.flatrate;
     var services = [];
     //if there are any flatrates
