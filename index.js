@@ -387,14 +387,14 @@ var table_columns = {
   // title:{header:"Title", display:true},
   // timestamp shows up funny because firebase
   timestamp:{header:"Time Added", display:false},
-  csrating:{header:"CommonSense Rating", display:true},
+  csrating:{header:"CSM Rating", display:true},
   runtime:{header:"Length", display:true},
   // either "movie" or "tv"
   type:{header:"Type", display:false},
   year:{header:"Year Released", display:true},
   releasedate:{header:"Release Date", display:false},
   notes:{header:"Notes", display:false},
-  rtrating:{header:"RottenTomatoes Rating", display:true},
+  rtrating:{header:"RottenTomatoes", display:true},
 }
 
 function movieElement(movie) {

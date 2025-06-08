@@ -1,5 +1,32 @@
+/* I think the naming conventions are wrong here but ah well */
 :root {
+    --clr-accent: rgb(90, 62, 191);
     
+    --clr-bg: rgb(20,20,20);
+    --clr-primary: rgb(30,30,30);
+    --clr-secondary: rgb(40,40,40);
+    /*--clr-tertiary: rgb(70,70,70);*/
+    --clr-ghost: rgb(60,60,60);
+}
+
+*{
+    color: white;
+}
+
+body{
+    background-color: var(--clr-bg);
+}
+
+select{
+    background-color: var(--clr-bg);
+    border-radius: 3px;
+    border-width: 0;
+}
+
+input{
+    background-color: var(--clr-bg);
+    border-color: white;
+    accent-color: var(--clr-accent);
 }
 
 .no-scroll{
@@ -10,27 +37,46 @@ textarea {
     resize: none;
     width: 100%;
     height: 100px;
+    background-color: var(--clr-primary);
+    border-color: white;
+}
+
+button{
+    cursor: pointer;
+    background-color: var(--clr-primary);
+    border-radius: 5px;
+    border-color: white;
 }
 
 #button-list,#button-grid{
     float: right;
-    background-color: #ffffff;
+    padding:5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin: 3px;
 }
 
 #button-list.active,#button-grid.active{
-    background-color: #007bff;
+    background-color: var(--clr-accent);
 }
 
 .ghost{
-    color: gray;
+    color: var(--clr-ghost);
+}
+
+.movie{
+    cursor: pointer;
 }
 
 /*#region grid view */
 
 .list.grid-view{
     display: flex;
-    flex-wrap: wrap;       /* Allows movies to wrap onto a new line */
-    gap: 15px;             /* Space between each movie item */
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
 }
 
 .grid-view .movie {
@@ -39,9 +85,9 @@ textarea {
     align-items: center;
     text-align: center;
     border-radius: 15px;
-    background: #cccccc;
+    background: var(--clr-primary);
     padding: 10px;
-    cursor: pointer;
+    width: 15vw;
 }
 
 .grid-view .poster {
@@ -51,6 +97,7 @@ textarea {
     font-size: 15px;
     border-radius: 5px;
     grid-column: 1;
+    width: 100%;
 }
 
 .grid-view .title {
@@ -82,11 +129,11 @@ textarea {
 }
 
 .list-view .row:nth-child(even){
-    background-color: #f2f2f2;
+    background-color: var(--clr-primary);
 }
 
 .list-view .row:not(.headers):hover {
-    background-color: #ddd;
+    background-color: var(--clr-secondary);
 }
 
 .list-view .header{
@@ -94,6 +141,7 @@ textarea {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
+    cursor:default;
 }
 
 .list-view .cell{
@@ -134,15 +182,15 @@ textarea {
 .chip-container {
     display: flex;
     flex-wrap: nowrap;
-    gap: 10px;
+    gap: 8px;
     margin-bottom: 20px;
 }
 
 .chip {
     padding: 5px 10px;
     height:20px;
-    background-color: #f1f1f1;
-    border: 1px solid #ccc;
+    background-color: var(--clr-secondary);
+    border: 1px solid var(--clr-primary);
     border-radius: 20px;
     cursor: pointer;
     user-select: none; /*can't select text*/
@@ -151,7 +199,7 @@ textarea {
 }
 
 .chip.active {
-    background-color: #007bff;
+    background-color: var(--clr-accent);
     color: white;
 }
 
@@ -182,27 +230,26 @@ textarea {
 /*#region popup*/
 
 .popup{
-    visibility: hidden;
-    
     position: fixed;
     left: 0;
     right: 0;
     margin: auto;
     width: 75%;
-    background: #ffffff;
+    background: var(--clr-bg);
     padding: 20px;
     z-index: 2;
-    height: 90%;
+    height: 95%; /* coordinate this with top */
     overflow-y: auto;
-    box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 32px rgba(0, 0, 0, 0.9);
     border-radius: 10px 10px 0 0; /* only top right and top left corners */
 
+    visibility: hidden;
     top:100%;
     transition: all 0.15s ease; 
 }
 
 .popup.active{
-    visibility: visible;  
+    visibility: visible; 
 
     top: 5%;
     transition: all 0.3s ease; 
@@ -216,13 +263,13 @@ textarea {
 .pop-bg {
     visibility: hidden;
     
-    position: fixed; /* Fixes the box in place */
-    top: 0;         /* Aligns the box to the top */
-    left: 0;        /* Aligns the box to the left */
-    width: 100vw;   /* 100% of the viewport width */
-    height: 100vh;  /* 100% of the viewport height */
-    background-color: rgba(0, 0, 0, 0.5); /* Example background color */
-    z-index: 1;   /* Make sure it's above other content */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
     
     opacity: 0;
     transition: all 0.15s;
@@ -264,33 +311,29 @@ textarea {
     float: right;
 }
 
-.pop-services{
+.pop-services, .pop-genres{
     display: flex;
     justify-content: flex-start;
     flex-wrap: nowrap;
-    margin: auto;
+    gap: 5px;
+    
 }
 
-.service{
+.service, .genre{
     display: inline-flex;
     padding: 5px;
-    border: 1px solid #000000;
+    border: 1px solid white;
     border-radius: 5px;
+    background-color: var(--clr-secondary);
+    margin: 3px;
 }
-
+/*
 .pop-genres{
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: nowrap;
 }
 
 .genre{
-    display: inline-flex;
-    padding: 5px;
-    border: 1px solid #000000;
-    border-radius: 5px;
 }
-
+*/
 /*#endregion popup*/
 
 #notification{
