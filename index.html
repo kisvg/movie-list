@@ -7,8 +7,8 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
     <body>
-        <input type="text" id="input-add-movie">
-        <button id="button-add-movie">Add Movie</button>
+        <input type="text" id="input-add-movie" placeholder="Enter movie/show name">
+        <button id="button-add-movie">Add movie</button>
 
         <!-- Buttons to choose list or grid view -->
         <button id="button-grid">
@@ -19,7 +19,7 @@
         </button>
 
         <!--service list-->
-        <button id="edit-services">Edit Services</button>
+        <button id="edit-services">Edit services</button>
         <div id="service-list-container" class="service-list-container">
             <p>Check the services we are subscribed to</p>
             <div id="service-list">
@@ -44,7 +44,7 @@
             <div class="pop-content" id="pop-content">
                 <span id="close-pop" class="close-pop">&times;</span>
                 <!-- or I could put this in c2 -->
-                <button id="mark-watched">Mark as Watched</button>
+                <button id="mark-watched">Mark as watched</button>
                 <div class="pop-grid" id="pop-grid">
                     <div class="c1" id="c1">
                         <h1 id="pop-title"></h1>
@@ -54,7 +54,7 @@
                         <p id="pop-year" class="ghost"></p>
                         <h3>Streaming Services </h3>
                         <div id="pop-services"></div>
-                        <h3>genres: </h3>
+                        <h3>Genres </h3>
                         <div id="pop-genres"></div>
                         <h3>Common Sense Rating </h3>
                         <input id="pop-csrating"></input>
@@ -63,9 +63,9 @@
                     </div>
                 </div>
                 <!--elements of popup content outside of grid-->
-                <h3>plot: </h3>
+                <h3>Plot </h3>
                 <p id="pop-plot"></p>
-                <h3>notes: </h3>
+                <h3>Notes </h3>
                 <textarea id="pop-notes"></textarea>
             </div>
         </div>
@@ -74,7 +74,7 @@
         <div id="notification">
             <i id="notification-good" class="fa fa-check"></i>
             <i id="notification-bad" class="fa fa-times"></i>
-            <p id="message">filler lmaoooooo</p>
+            <p id="message"></p>
         </div>
         <script type="module" src="index.js"></script>
     </body>

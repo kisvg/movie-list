@@ -69,8 +69,9 @@ function addTriggers(){
     }
   })
   //popup
-  document.getElementById("mark-watched").onclick = function(){
-    moveData("unwatched",globalThis.currentId,"watched")
+  document.getElementById("mark-watched").onclick = async function(){
+    await moveData("unwatched",globalThis.currentId,"watched")
+    displayNotification("Marked as watched")
   }
   //triggers for closing popup
   document.getElementById('close-pop').onclick = function() {closePop()};
@@ -208,7 +209,13 @@ async function addMovie(name) {
   globalThis.newMovie = {};
   await getInfo(name);
   await sendData("unwatched",newMovie);
-  displayNotification("Movie added: "+newMovie.title)
+  if (newMovie.type == "tv"){
+    displayNotification("Show added: "+newMovie.title)
+  }
+  else{
+    displayNotification("Movie added: "+newMovie.title)
+  }
+  document.getElementById("input-add-movie").value = ""
 };
 
 async function getInfo(name) {

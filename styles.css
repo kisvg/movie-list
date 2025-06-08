@@ -54,9 +54,18 @@ button{
 .ghost{
     color: var(--clr-ghost);
 }
-
+/*
+::placeholder{
+    text-align: center;
+}
+*/
 /*#endregion theme */
 
+#input-add-movie{
+    width: 500px;
+    height: 20px;
+    padding: 5px;
+}
 
 #save-service-list{
     margin-top: 5px;
