@@ -486,6 +486,10 @@ function generateChips(filters) {
   globalThis.doServiceFilter = true
   document.getElementById(`chip-services`).classList.toggle('active')
   
+  //listen for change between movie and show
+  document.getElementById("chip-value-type").addEventListener("change", function(event) {
+    applyFilters()
+  })
 
   filters.forEach((filter)=>{
     let key = filter.key
