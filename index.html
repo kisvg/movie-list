@@ -40,13 +40,15 @@
         <div id="popup" class="popup">
             <div class="pop-content" id="pop-content">
                 <span id="close-pop" class="close-pop">&times;</span>
+                <!-- or I could put this in c2 -->
+                <button id="mark-watched">Mark as Watched</button>
                 <div class="pop-grid" id="pop-grid">
                     <div class="c1" id="c1">
                         <h1 id="pop-title"></h1>
                         <img id="pop-poster">
                     </div>
                     <div class="c2" id="c2">
-                        <p id="pop-year"></p>
+                        <p id="pop-year" class="ghost"></p>
                         <h3>Streaming Services </h3>
                         <div id="pop-services"></div>
                         <h3>genres: </h3>
@@ -65,6 +67,12 @@
             </div>
         </div>
 
+        <!--notification-->
+        <div id="notification">
+            <i id="notification-good" class="fa fa-check"></i>
+            <i id="notification-bad" class="fa fa-times"></i>
+            <p id="message">filler lmaoooooo</p>
+        </div>
         <script type="module" src="index.js"></script>
     </body>
 

@@ -1,3 +1,7 @@
+:root {
+    
+}
+
 .no-scroll{
     overflow: hidden;
 }
@@ -117,7 +121,6 @@ textarea {
 
 /*#endregion list view*/
 
-
 /*#region filters */
 
 .service-list-container{
@@ -188,7 +191,7 @@ textarea {
     width: 75%;
     background: #ffffff;
     padding: 20px;
-    z-index: 1000;
+    z-index: 2;
     height: 90%;
     overflow-y: auto;
     box-shadow: 0 0 16px rgba(0, 0, 0, 0.6);
@@ -219,7 +222,7 @@ textarea {
     width: 100vw;   /* 100% of the viewport width */
     height: 100vh;  /* 100% of the viewport height */
     background-color: rgba(0, 0, 0, 0.5); /* Example background color */
-    z-index: 500;   /* Make sure it's above other content */
+    z-index: 1;   /* Make sure it's above other content */
     
     opacity: 0;
     transition: all 0.15s;
@@ -257,6 +260,10 @@ textarea {
     grid-column: 2;
 }
 
+#mark-watched{
+    float: right;
+}
+
 .pop-services{
     display: flex;
     justify-content: flex-start;
@@ -285,3 +292,29 @@ textarea {
 }
 
 /*#endregion popup*/
+
+#notification{
+    opacity: 0;
+    
+    z-index: 10;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    gap: 5px;
+    padding: 5px;
+
+    transition: all 1s ease;
+}
+
+#notification.active{
+    opacity: 1;
+    transition: all 0.5s ease;
+}
+
+#message{
+    margin: 0;
+}

@@ -1,10 +1,12 @@
-//#region firebase config
+//#region firebase
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
-import { getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, 
+import { 
+  getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, 
   onSnapshot, 
-  query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+  query, where, orderBy, limit, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj4WhOtO_5fuUK7xqEU8ZOAlYrVTOx8uA",
@@ -29,11 +31,54 @@ const watchedRef = collection(db, "watched")
 
 import * as service_list from './service_list.js'
 
-document.getElementById('edit-services').onclick = function(){
-  document.getElementById('service-list-container').classList.toggle('active')
+async function main(){
+  addTriggers()
+  await loadServiceList()
 }
 
-// I mean it doesn't really matter but WHY are they not always in the same order Google
+function addTriggers(){
+  // grid / list ui
+  document.getElementById("button-list").onclick = function(){
+    document.getElementById("button-list").classList.add("active");
+    document.getElementById("button-grid").classList.remove("active");
+    document.getElementById("list").classList.add("list-view");
+    document.getElementById("list").classList.remove("grid-view");
+  }
+  document.getElementById("button-grid").onclick = function(){
+    document.getElementById("button-grid").classList.add("active");
+    document.getElementById("button-list").classList.remove("active");
+    document.getElementById("list").classList.remove("list-view");
+    document.getElementById("list").classList.add("grid-view");
+  }
+  //services
+  document.getElementById('edit-services').onclick = function(){
+    document.getElementById('service-list-container').classList.toggle('active')
+  }
+  document.getElementById("save-service-list").onclick = function(){
+    saveServiceList(service_list.getServiceList())
+  };
+  //add movie
+  document.getElementById('button-add-movie').onclick = function() {
+    addMovie(document.getElementById("input-add-movie").value)
+  };
+  //if enter clicked in text box
+  document.getElementById('input-add-movie').addEventListener("keyup", function(event) {
+    if (event.key === "Enter") {
+      addMovie(document.getElementById("input-add-movie").value)
+    }
+  })
+  //popup
+  document.getElementById("mark-watched").onclick = function(){
+    moveData("unwatched",globalThis.currentId,"watched")
+  }
+  //triggers for closing popup
+  document.getElementById('close-pop').onclick = function() {closePop()};
+  document.getElementById('pop-bg').onclick = function() {closePop()};
+
+  // there's a question as to whether we should make the triggers for closePop have an await, which would mean
+  // a waterfall of async functions
+}
+
 async function loadServiceList(){
   let docRef = doc(db, "cloud", "services");
   let docSnap = await getDoc(docRef);
@@ -56,12 +101,17 @@ async function loadServiceList(){
   }
 }
 
-async function main(){
-  await loadServiceList()
-
-}
 main()
-document.getElementById("save-service-list").onclick = function(){saveServiceList(service_list.getServiceList())};
+
+function lowerArray(array){
+  return array.map(item => item.toLowerCase())
+}
+
+/*
+function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, (time)*1000));
+}
+*/
 
 export function saveServiceList(serviceList){
   globalThis.serviceList = serviceList
@@ -71,29 +121,43 @@ export function saveServiceList(serviceList){
   applyFilters()
 }
 
-function lowerArray(array){
-  return array.map(item => item.toLowerCase())
-}
-
-//#region ui
-
 // TODO: change based on user preference
 document.getElementById("list").classList.add("list-view");
 document.getElementById("button-list").classList.add("active");
 
-document.getElementById("button-list").onclick = function(){
-  document.getElementById("button-list").classList.add("active");
-  document.getElementById("button-grid").classList.remove("active");
-  document.getElementById("list").classList.add("list-view");
-  document.getElementById("list").classList.remove("grid-view");
-}
-document.getElementById("button-grid").onclick = function(){
-  document.getElementById("button-grid").classList.add("active");
-  document.getElementById("button-list").classList.remove("active");
-  document.getElementById("list").classList.remove("list-view");
-  document.getElementById("list").classList.add("grid-view");
+
+//#region managing data
+
+async function sendData(root,obj) {
+  try {
+    const docRef = await addDoc(collection(db, root), obj);
+    console.log("Document written with ID: ", docRef.id
+      , "\nDocument contents:"
+    );
+    console.log(obj)
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    // ('Item could not be added to MovieList')
+  }
 }
 
+async function moveData(root, id, destination){
+  const docRef = doc(db, root, id);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    try{
+      await setDoc(doc(db, destination, id), docSnap.data())
+      //sendData(destination,docSnap.data())
+    }
+    catch(e){
+      console.log("error sending data: ", e)
+    }
+    await deleteDoc(doc(db, root, id));
+  } else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document");
+  }
+}
 
 //#endregion
 
@@ -125,51 +189,7 @@ const wmKeys = [
 
 //#endregion
 
-//#region managing data
-
-async function sendData(root,obj) {
-  try {
-    const docRef = await addDoc(collection(db, root), obj);
-    console.log("Document written with ID: ", docRef.id
-      , "\nDocument contents:"
-    );
-    console.log(obj)
-  } catch (e) {
-    console.error("Error adding document: ", e);
-    // ('Item could not be added to MovieList')
-  }
-}
-
-async function moveData(root, name, destination){
-  const docRef = doc(db, root, name);
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-    try{
-      await setDoc(doc(db, destination, name), docSnap.data())
-      //sendData(destination,docSnap.data())
-    }
-    catch(e){
-      console.log("error sending data: ", e)
-    }
-    await deleteDoc(doc(db, root, name));
-  } else {
-    // docSnap.data() will be undefined in this case
-    console.log("No such document");
-  }
-}
-
-//#endregion
-
 //#region adding movies
-
-//if button clicked
-document.getElementById('button-add-movie').onclick = function() {addMovie(document.getElementById("input-add-movie").value)};
-//if enter clicked in text box
-document.getElementById('input-add-movie').addEventListener("keyup", function(event) {
-  if (event.key === "Enter") {
-    addMovie(document.getElementById("input-add-movie").value)
-  }
-})
 
 function randKey(service) {
   if (service == "omdb") {
@@ -188,6 +208,7 @@ async function addMovie(name) {
   globalThis.newMovie = {};
   await getInfo(name);
   await sendData("unwatched",newMovie);
+  displayNotification("Movie added: "+newMovie.title)
 };
 
 async function getInfo(name) {
@@ -361,7 +382,7 @@ const filters = [
   },
 ]
 
-var table_columns={
+var table_columns = {
   // this is always force displayed
   // title:{header:"Title", display:true},
   // timestamp shows up funny because firebase
@@ -427,16 +448,6 @@ function clearList(){
   `
   document.getElementById("list").innerHTML = markup;
 }
-
-// updating
-
-// this runs if firestore updates or at the very beginning
-const update = onSnapshot(unwatchedRef, (querySnapshot) => {
-  //populate(querySnapshot)
-  if (globalThis.serviceList) {
-    applyFilters()
-  }
-});
 
 async function q(criteria, order = ''){
   if (order){
@@ -553,11 +564,6 @@ function toggleFilter(key){
   }
 }
 
-generateChips(filters);
-
-document.getElementById("chip-container").insertAdjacentHTML("afterend", `<button id="apply-filters">filter</button>`);
-document.getElementById('apply-filters').onclick = function() {applyFilters()};
-
 async function applyFilters(){
   var active_chips = []
   var queries = []
@@ -667,6 +673,19 @@ function populate(querySnapshot){
   });
 }
 
+// this runs if firestore updates or at the very beginning
+const update = onSnapshot(unwatchedRef, (querySnapshot) => {
+  //populate(querySnapshot)
+  if (globalThis.serviceList) {
+    applyFilters()
+  }
+});
+
+generateChips(filters);
+
+document.getElementById("chip-container").insertAdjacentHTML("afterend", `<button id="apply-filters">filter</button>`);
+document.getElementById('apply-filters').onclick = function() {applyFilters()};
+
 //#endregion
 
 //#region popups
@@ -733,13 +752,6 @@ async function openPop(movieId) {
   document.body.classList.add('no-scroll');
 }
 
-//triggers for closing popup
-document.getElementById('close-pop').onclick = function() {closePop()};
-document.getElementById('pop-bg').onclick = function() {closePop()};
-
-// there's a question as to whether we should make the triggers for closePop have an await, which would mean
-// a waterfall of async functions
-
 // Function to close the popup
 async function closePop() {
   document.getElementById("popup").classList.remove('active');
@@ -772,7 +784,36 @@ async function saveChanges(){
   globalThis.currentId = null
 }
 
+
 //#endregion
+
+
+
+const notification = document.getElementById("notification")
+
+function displayNotification(message, isGood = true, time = 5){
+  time*=1000
+  if (isGood){
+   notification.style.backgroundColor = 'lightgreen'
+   document.getElementById("notification-bad").style.display = 'none'
+   document.getElementById("notification-good").style.display = 'block'
+  }
+  else{
+    notification.style.backgroundColor = 'pink'
+    document.getElementById("notification-good").style.display = 'none'
+    document.getElementById("notification-bad").style.display = 'block'
+  }
+
+  document.getElementById("message").innerHTML = message
+  if (!notification.classList.contains("active")){
+    notification.classList.add("active")
+    setTimeout(function() {
+      notification.classList.remove("active")
+    }, time);
+  }
+}
+
+displayNotification("hi",true)
 
 //#region etc
 
