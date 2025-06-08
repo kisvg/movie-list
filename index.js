@@ -185,8 +185,7 @@ async function addMovie(name) {
 
 async function getInfo(name) {
   await getOmdb(name);
-  await getTmdb(newMovie.imdbid);
-  console.log(newMovie);
+  await getTmdb(newMovie);
 }
 
 // Make GET request for general movie info
@@ -230,28 +229,44 @@ async function getOmdb(name) {
 };
 
 // GET request only for streaming services given imdb id
-async function getTmdb(imdbid) {
+async function getTmdb(newMovie) {
+  let imdbid = newMovie.imdbid
   try{
-  const response = await fetch("https://api.themoviedb.org/3/movie/"+imdbid+"/watch/providers?api_key="+randKey("tmdb"))
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-  const initialdata = await response.json();
-  const data = initialdata.results.US?.flatrate;
-  var services = [];
-  //if there are any flatrates
-  if(data){
-    data.forEach(item => {
-      services.push(item.provider_name)
-    });
-  }
-  let services_lower = lowerArray(services)
-  newMovie["services"] = services; //y
-  newMovie["services_lower"] = services_lower
+    let url
+    // hack because for some reason imdb id works on movies but not shows
+    if (newMovie.type == "series"){
+      let response = await fetch("https://api.themoviedb.org/3/search/tv?query="+newMovie.title+"&api_key="+randKey("tmdb"))
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      let data = await response.json();
+      let id = data.results[0].id
+      console.log(id)
+      url = "https://api.themoviedb.org/3/tv/"+id+"/season/1/watch/providers?api_key="+randKey("tmdb")
     }
-    catch (error) {
-      console.error('Error:', error);
+    else{
+      url = "https://api.themoviedb.org/3/movie/"+imdbid+"/watch/providers?api_key="+randKey("tmdb")
     }
+    let response = await fetch(url)
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    let initialdata = await response.json();
+    let data = initialdata.results.US?.flatrate;
+    var services = [];
+    //if there are any flatrates
+    if(data){
+      data.forEach(item => {
+        services.push(item.provider_name)
+      });
+    }
+    let services_lower = lowerArray(services)
+    newMovie["services"] = services; //y
+    newMovie["services_lower"] = services_lower
+  }
+  catch (error) {
+    console.error('Error:', error);
+  }
 };
 
 //#endregion
@@ -312,7 +327,7 @@ const filters = [
 
 var table_columns={
   // this is always force displayed
-  //title:{header:"Title", display:true},
+  // title:{header:"Title", display:true},
   // timestamp shows up funny because firebase
   timestamp:{header:"Time Added", display:false},
   csrating:{header:"CommonSense Rating", display:true},
@@ -335,8 +350,18 @@ function movieElement(movie) {
       <!--details-->
     `
   Object.keys(table_columns).forEach(key =>{
+    let value = data[key]
     if(table_columns[key]["display"]){
-      markup += `<p class="${key} cell">${data[key]}</p>`
+      if(value==null){
+        value = "N/A"
+        key+=" ghost"
+      }
+      else{
+        if(key=="rtrating"){
+          value += "%"
+        }
+      }
+      markup += `<p class="${key} cell">${value}</p>`
     }
   })
   markup+=`
@@ -614,7 +639,15 @@ async function openPop(movieId) {
     document.getElementById("pop-title").innerHTML=data.title
     document.getElementById("pop-plot").innerHTML=data.plot
     document.getElementById("pop-year").innerHTML=data.year
-    document.getElementById("pop-rtrating").innerHTML=data.rtrating
+    let rtrating = data.rtrating
+    if (rtrating==undefined){
+      rtrating = "N/A"
+      document.getElementById("pop-rtrating").classList.add("ghost")
+    }
+    else{
+      rtrating +="%"
+    }
+    document.getElementById("pop-rtrating").innerHTML=rtrating
     //images
     document.getElementById("pop-poster").src=data.poster
     //inputs

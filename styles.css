@@ -17,6 +17,10 @@ textarea {
     background-color: #007bff;
 }
 
+.ghost{
+    color: gray;
+}
+
 /*#region grid view */
 
 .list.grid-view{
