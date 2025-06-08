@@ -184,75 +184,45 @@ async function addMovie(name) {
 };
 
 async function getInfo(name) {
-  await getOmdb(name);
-  await getTmdb(newMovie);
+  await getTmdb(name);
+  await getOmdb(newMovie);
 }
 
-// Make GET request for general movie info
-async function getOmdb(name) {
-  try{
-    const response = await fetch("https://www.omdbapi.com/?t="+name+"&plot=full&apikey="+randKey("omdb"))
+async function get(url){
+  let response = await fetch(url)
     if (!response.ok) {
       throw new Error('Response was not ok');
     }
-    const data = await response.json();
-    // add relevant data from response to newMovie
-    newMovie["title"] = data.Title; //y (displayed?)
-    newMovie["timestamp"] = serverTimestamp(); //n 
-    newMovie["csrating"] = null; //y
-    newMovie["imdbid"] = data.imdbID; //n
-    newMovie["poster"] = data.Poster; //y
-    newMovie["runtime"] = data.Runtime; //n
-    newMovie["type"] = data.Type; //n
-    newMovie["plot"] = data.Plot; //y
-    newMovie["year"] = data.Year; //y
-    newMovie["releasedate"] = data.Released; //n
-    newMovie["notes"] = "" //y
+    let data = await response.json();
+    return data
+}
 
-    let genres = data.Genre.split(", "); //y
-    let genres_lower = lowerArray(genres)
-    newMovie["genres"] = genres; //y
-    newMovie["genres_lower"] = genres_lower
-
-    // finds object w/ rt rating
-    try{
-      const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
-      newMovie["rtrating"] = Number((rtobj ? rtobj.Value : null).replace("%","")); //y
-    }
-    catch(error){
-      console.error('Error:', error);
-    }
-  }
-  catch (error) {
-    console.error('Error:', error);
-  }
-};
-
-// GET request only for streaming services given imdb id
-async function getTmdb(newMovie) {
-  let imdbid = newMovie.imdbid
+// GET request
+async function getTmdb(name) {
   try{
+    let initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&apikey="+randKey("tmdb"))
+    let data = initialdata.results[0]
+    let tmdbid = data.id
+    newMovie["tmdbid"] = tmdbid //n (displayed?)
+    newMovie["timestamp"] = serverTimestamp(); //n 
+    newMovie["title"] = data.name //y
+    newMovie["poster"] = "https://image.tmdb.org/t/p/w600_and_h900_bestv2"+data.poster_path //y
+    newMovie["type"] = data.media_type //n
+    newMovie["plot"] = data.overview //y
+    newMovie["csrating"] = null; //y
+    newMovie["notes"] = "" //y
+    initialdata = await get ("https://api.themoviedb.org/3/movie/"+tmdbid+"/external_ids")
+    newMovie["imdbid"] = initialdata.imdb_id //n
+    // now for the streaming services
     let url
-    // hack because for some reason imdb id works on movies but not shows
-    if (newMovie.type == "series"){
-      let response = await fetch("https://api.themoviedb.org/3/search/tv?query="+newMovie.title+"&api_key="+randKey("tmdb"))
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      let data = await response.json();
-      let id = data.results[0].id
-      console.log(id)
-      url = "https://api.themoviedb.org/3/tv/"+id+"/season/1/watch/providers?api_key="+randKey("tmdb")
+    if (newMovie.type == "tv"){
+      url = "https://api.themoviedb.org/3/tv/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb")
     }
     else{
-      url = "https://api.themoviedb.org/3/movie/"+imdbid+"/watch/providers?api_key="+randKey("tmdb")
+      url = "https://api.themoviedb.org/3/movie/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb")
     }
-    let response = await fetch(url)
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    let initialdata = await response.json();
-    let data = initialdata.results.US?.flatrate;
+    initialdata = await get(url)
+    data = initialdata.results.US?.flatrate;
     var services = [];
     //if there are any flatrates
     if(data){
@@ -262,7 +232,39 @@ async function getTmdb(newMovie) {
     }
     let services_lower = lowerArray(services)
     newMovie["services"] = services; //y
-    newMovie["services_lower"] = services_lower
+    newMovie["services_lower"] = services_lower //n
+  }
+  catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+// Make GET request for more general movie info
+async function getOmdb(newMovie) {
+  try{
+    const response = await fetch("https://www.omdbapi.com/?i="+newMovie.imdbid+"&plot=full&apikey="+randKey("omdb"))
+    if (!response.ok) {
+      throw new Error('Response was not ok');
+    }
+    const data = await response.json();
+    // add relevant data from response to newMovie
+    newMovie["runtime"] = data.Runtime; //n
+    newMovie["year"] = data.Year; //y
+    newMovie["releasedate"] = data.Released; //n
+    // genres
+    let genres = data.Genre.split(", ")
+    let genres_lower = lowerArray(genres)
+    newMovie["genres"] = genres; //y
+    newMovie["genres_lower"] = genres_lower //n
+
+    // finds object w/ rt rating
+    try{
+      const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
+      newMovie["rtrating"] = Number((rtobj ? rtobj.Value : null).replace("%","")); //y
+    }
+    catch(error){
+      console.error('Error:', error);
+    }
   }
   catch (error) {
     console.error('Error:', error);
@@ -299,7 +301,7 @@ const filters = [
     },
     value_type:{
       'movies':"movie",
-      'shows': "series"},
+      'shows': "tv"},
   },
   {
     name: "CSM rating",
@@ -332,7 +334,7 @@ var table_columns={
   timestamp:{header:"Time Added", display:false},
   csrating:{header:"CommonSense Rating", display:true},
   runtime:{header:"Length", display:true},
-  // either "movie" or "series"
+  // either "movie" or "tv"
   type:{header:"Type", display:false},
   year:{header:"Year Released", display:true},
   releasedate:{header:"Release Date", display:false},
