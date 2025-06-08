@@ -41,7 +41,7 @@ async function loadServiceList(){
   // not the best way, but it works. alternative (that I think does the same thing):
   /*
   const entries = Object.entries(obj);
-  entries.sort((a, b) => b[1] - a[1]); // Sort true values first
+  entries.sort((a, b) => b[1] - a[1]); // sort true values first
   const sortedObj = Object.fromEntries(entries);
   */
   globalThis.serviceList = Object.keys(unordered)
@@ -51,9 +51,16 @@ async function loadServiceList(){
     return acc;
   }, {})
   service_list.renderServiceList(serviceList)
+  if (globalThis.doServiceFilter){
+    applyFilters()
+  }
 }
 
-loadServiceList()
+async function main(){
+  await loadServiceList()
+
+}
+main()
 document.getElementById("save-service-list").onclick = function(){saveServiceList(service_list.getServiceList())};
 
 export function saveServiceList(serviceList){
@@ -200,18 +207,36 @@ async function get(url){
 // GET request
 async function getTmdb(name) {
   try{
-    let initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&api_key="+randKey("tmdb"))
-    let data = initialdata.results[0]
+    let initialdata
+    let data
+    let type
+    let acceptable = ['movie','tv']
+    let i = 0
+    while(true){
+      initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&api_key="+randKey("tmdb"))
+      data = initialdata.results[i]
+      type = data.media_type
+      // we don't want that infinite loop
+      if ((acceptable.includes(type)) || (i > 20)){
+        break
+      }
+      console.log("woah, that's a "+type)
+      i+=1
+    }
     console.log(data)
     let tmdbid = data.id
-    let type = data.media_type
     newMovie["tmdbid"] = tmdbid //n (displayed?)
     newMovie["type"] = type //n
     newMovie["timestamp"] = serverTimestamp(); //n 
-    newMovie["poster"] = "https://image.tmdb.org/t/p/w300_and_h450_bestv2"+data.poster_path //y
     newMovie["plot"] = data.overview //y
     newMovie["csrating"] = null; //y
     newMovie["notes"] = "" //y
+    if (data.poster_path && typeof data.poster_path === "string"){
+      newMovie["poster"] = "https://image.tmdb.org/t/p/w300_and_h450_bestv2"+data.poster_path //y
+    }
+    else{
+      newMovie["poster"] = "placeholder.png"
+    }
     initialdata = await get ("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
     newMovie["imdbid"] = initialdata.imdb_id //n
     // now for the streaming services
@@ -252,21 +277,30 @@ async function getOmdb(newMovie) {
     newMovie["year"] = data.Year; //y
     newMovie["releasedate"] = data.Released; //n
     // genres
-    let genres = data.Genre.split(", ")
+    let genres = []
+    if (data.Genre){
+      genres = data.Genre.split(", ")
+    }
     let genres_lower = lowerArray(genres)
     newMovie["genres"] = genres; //y
     newMovie["genres_lower"] = genres_lower //n
 
     // finds object w/ rt rating
     try{
-      const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
-      newMovie["rtrating"] = Number((rtobj ? rtobj.Value : null).replace("%","")); //y
-    }
-    catch(e){
+      let rtobj = null
+      if (Array.isArray(data.Ratings)) {
+        rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
+      }
+      if (rtobj && rtobj.Value) {
+        newMovie["rtrating"] = Number(rtobj.Value.replace("%",""));
+      } 
+      else {
+        newMovie["rtrating"] = null;
+      }
+    } catch(e){
       console.error(e);
     }
-  }
-  catch (e) {
+  } catch (e) {
     console.error(e);
   }
 };
@@ -345,9 +379,13 @@ var table_columns={
 function movieElement(movie) {
   let data = movie.data;
   let id = movie.id;
+  let poster = "placeholder.png"
+  if (data.poster){
+    poster = data.poster
+  }
   let markup = `
     <div class="movie row" id="${id}">
-      <img class="poster" src="${data.poster}">
+      <img class="poster" src="${poster}">
       <h2 class="title cell">${data.title}</h2>
       <!--details-->
     `
@@ -395,7 +433,9 @@ function clearList(){
 // this runs if firestore updates or at the very beginning
 const update = onSnapshot(unwatchedRef, (querySnapshot) => {
   //populate(querySnapshot)
-  applyFilters()
+  if (globalThis.serviceList) {
+    applyFilters()
+  }
 });
 
 async function q(criteria, order = ''){
@@ -546,7 +586,7 @@ async function applyFilters(){
     }
   })
 
-  if (globalThis.doServiceFilter == true){
+  if (globalThis.doServiceFilter && globalThis.serviceList){
     let serviceList = globalThis.serviceList
     let serviceArray = lowerArray(Object.keys(serviceList).filter(key => serviceList[key]))
     queries.push({key:'services_lower',operator:'array-contains-any',value:serviceArray})
@@ -652,10 +692,15 @@ async function openPop(movieId) {
     }
     else{
       rtrating +="%"
+      document.getElementById("pop-rtrating").classList.remove("ghost")
     }
     document.getElementById("pop-rtrating").innerHTML=rtrating
     //images
-    document.getElementById("pop-poster").src=data.poster
+    let poster = "placeholder.png"
+    if (data.poster){
+      poster = data.poster
+    }
+    document.getElementById("pop-poster").src=poster
     //inputs
     document.getElementById("pop-notes").value=data.notes
     document.getElementById("pop-csrating").value=data.csrating
@@ -736,11 +781,12 @@ async function saveChanges(){
 /*
 async function addMM(movies){
   for (const movie of movies) {
-    await addMovie(movie)
+    if (!globalThis.a){
+      await addMovie(movie)}
   };
 }
 
-let movies = ['American Dreamer','Bambi','Battle of the Sexes','Better Nate Than Ever','Bourne','Boyhood','Bridge to Terabithia','Clueless','Deaf Mute Heroine','Enchanted','Fantasia','Gilmore Girls','Ginny & Georgia','The Diplomat','Hollywood Stargirl','Into the Night','Irresistible','James Bond ','Knight and Day','Life Animated','Lord of the Rings','Mission Impossible ','Nick & Noras Infinite Playlist','Nomadland','Pantheon','Passengers','Planet of the Apes','Pop Star','Rocks','Say Anything','See You Yesterday','Sex Education','Shake the Dust','Short Circuit','Song of the Sea','Spaceship Earth','Sword of the Stranger','Tar','Ted Lasso','Tekkonkinkreet','The Call of the Wild','The Duff','The Kissing Booth','The Sandlot','The Way Way Back','Three Amigos','Time Travelers Wife','To Kill a Mockingbird','Umbrella Academy','Waltz with Bashir','Whats so Bad About Feeling Good?','Where to Invade Next','White Fang','Winter Days','Rocks','Fantastic Fungi','El Chivo','Lost City','The Prince of Egypt','Promare','The Secret of Kells','Endless Summer','1000 Me','Americanish','Kundun','Tony Hawk','Miss Congeniality','Super 8','Brothers of the Wind','Tonight Youre Mine','Dancer in the Dark','China Blue','The Point of No Return','La Femme Nikita','Beef','Dog Gone','Casa de papel','Divergent ','Cyrano','Creed','Brigsby Bear','Map of Tiny Perfect Things','Miss Juneteenth','Fried Green Tomatoes','The Sisterhood of the Traveling Pants','Gran Turismo','Archies','Family Switch','13 the musical','Secret Diary of an Exchange Student','Blackpink: Light up the sky','The Italian Job','Now You See Me','Logan Lucky','Theory of everything','Liar liar','Dumplin','500 days of summer','My Spy','One Piece: Baron Omatsuri and the Secret Island','Alien','Fight Club','Snatch','Pulp Fiction','Mcfarland USA','Nine to Five','Sharper','Death at a Funeral','Woman King','Bottle Shock','Conclave']
+let movies = ["American Dreamer","Bambi","Battle of the Sexes","Better Nate Than Ever","Bourne","Boyhood","Bridge to Terabithia","Clueless","Deaf Mute Heroine","Enchanted","Fantasia","Gilmore Girls","Ginny & Georgia","The Diplomat","Hollywood Stargirl","Into the Night","Irresistible","James Bond ","Knight and Day","Life Animated","Lord of the Rings","Mission Impossible ","Nick & Noras Infinite Playlist","Nomadland","Passengers","Planet of the Apes","Pop Star","Rocks","Say Anything","See You Yesterday","Sex Education","Shake the Dust","Short Circuit","Song of the Sea","Spaceship Earth","Sword of the Stranger","Tar","Ted Lasso","Tekkonkinkreet","The Call of the Wild","The Duff","The Kissing Booth","The Sandlot","Three Amigos","Time Travelers Wife","To Kill a Mockingbird","Umbrella Academy","Waltz with Bashir","Whats so Bad About Feeling Good?","Where to Invade Next","White Fang","Winter Days","Rocks","Fantastic Fungi","El Chivo","Lost City","The Prince of Egypt","Promare","The Secret of Kells","Endless Summer","1000 Me","Americanish","Kundun","Tony Hawk","Miss Congeniality","Super 8","Brothers of the Wind","Tonight Youre Mine","Dancer in the Dark","China Blue","The Point of No Return","La Femme Nikita","Beef","Dog Gone","Casa de papel","Divergent ","Cyrano","Creed","Brigsby Bear","Map of Tiny Perfect Things","Fried Green Tomatoes","The Sisterhood of the Traveling Pants","Gran Turismo","Archies","Family Switch","13 the musical","Secret Diary of an Exchange Student","Blackpink: Light up the sky","The Italian Job","Now You See Me","Logan Lucky","Theory of everything","Liar liar","Dumplin","500 days of summer","My Spy","One Piece: Baron Omatsuri and the Secret Island","Alien","Snatch","Mcfarland USA","9 to 5","Woman King","Bottle Shock","How I Met Your Mother","Flow","Scavengers Reign","Twilight of the Cockroaches"]
 //addMM(movies)
 */
 
