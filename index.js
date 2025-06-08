@@ -142,7 +142,7 @@ async function moveData(root, name, destination){
       //sendData(destination,docSnap.data())
     }
     catch(e){
-      console.log("error sending data")
+      console.log("error sending data: ", e)
     }
     await deleteDoc(doc(db, root, name));
   } else {
@@ -200,26 +200,28 @@ async function get(url){
 // GET request
 async function getTmdb(name) {
   try{
-    let initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&apikey="+randKey("tmdb"))
+    let initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&api_key="+randKey("tmdb"))
     let data = initialdata.results[0]
+    console.log(data)
     let tmdbid = data.id
     newMovie["tmdbid"] = tmdbid //n (displayed?)
     newMovie["timestamp"] = serverTimestamp(); //n 
-    newMovie["title"] = data.name //y
-    newMovie["poster"] = "https://image.tmdb.org/t/p/w600_and_h900_bestv2"+data.poster_path //y
+    newMovie["poster"] = "https://image.tmdb.org/t/p/w300_and_h450_bestv2"+data.poster_path //y
     newMovie["type"] = data.media_type //n
     newMovie["plot"] = data.overview //y
     newMovie["csrating"] = null; //y
     newMovie["notes"] = "" //y
-    initialdata = await get ("https://api.themoviedb.org/3/movie/"+tmdbid+"/external_ids")
+    initialdata = await get ("https://api.themoviedb.org/3/movie/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
     newMovie["imdbid"] = initialdata.imdb_id //n
     // now for the streaming services
     let url
     if (newMovie.type == "tv"){
       url = "https://api.themoviedb.org/3/tv/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb")
+      newMovie["title"] = data.name //y
     }
     else{
       url = "https://api.themoviedb.org/3/movie/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb")
+      newMovie["title"] = data.title //y
     }
     initialdata = await get(url)
     data = initialdata.results.US?.flatrate;
@@ -234,8 +236,8 @@ async function getTmdb(name) {
     newMovie["services"] = services; //y
     newMovie["services_lower"] = services_lower //n
   }
-  catch (error) {
-    console.error('Error:', error);
+  catch (e) {
+    console.error(e);
   }
 };
 
@@ -262,12 +264,12 @@ async function getOmdb(newMovie) {
       const rtobj = data.Ratings.find(r => r.Source === "Rotten Tomatoes");
       newMovie["rtrating"] = Number((rtobj ? rtobj.Value : null).replace("%","")); //y
     }
-    catch(error){
-      console.error('Error:', error);
+    catch(e){
+      console.error(e);
     }
   }
-  catch (error) {
-    console.error('Error:', error);
+  catch (e) {
+    console.error(e);
   }
 };
 
@@ -557,8 +559,8 @@ async function applyFilters(){
 
       populate_multiple(querySnapshots)
 
-    } catch (error) {
-      console.error('Error applying filters:', error);
+    } catch (e) {
+      console.error('Error applying filters:', e);
     }
   }
   else{
@@ -707,7 +709,7 @@ async function saveChanges(){
     var csrating = Number(document.getElementById("pop-csrating").value)
     }
     catch(e){
-      console.log("Error: number not inputted")
+      console.log("Error: number not inputted ", e)
     }
   }
   else{
