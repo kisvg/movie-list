@@ -52,11 +52,12 @@ function addTriggers(){
   }
   //services
   document.getElementById('edit-services').onclick = function(){
-    document.getElementById('service-list-container').classList.toggle('active')
+    document.getElementById('service-list-container').classList.add('active')
   }
   document.getElementById("save-service-list").onclick = async function(){
     await saveServiceList(service_list.getServiceList())
     displayNotification("Service List Saved")
+    document.getElementById('service-list-container').classList.remove('active')
   };
   //add movie
   document.getElementById('button-add-movie').onclick = function() {
@@ -208,14 +209,20 @@ function randKey(service) {
 async function addMovie(name) {
   globalThis.newMovie = {};
   await getInfo(name);
-  await sendData("unwatched",newMovie);
-  if (newMovie.type == "tv"){
-    displayNotification("Show added: "+newMovie.title)
+  if (newMovie.title){
+    await sendData("unwatched",newMovie);
+    if (newMovie.type == "tv"){
+      displayNotification("Show added: "+newMovie.title)
+    }
+    else{
+      displayNotification("Movie added: "+newMovie.title)
+    }
+    document.getElementById("input-add-movie").value = ""
   }
+  // if fetching it fails
   else{
-    displayNotification("Movie added: "+newMovie.title)
+    displayNotification("Failed. Typo?",false)
   }
-  document.getElementById("input-add-movie").value = ""
 };
 
 async function getInfo(name) {
@@ -473,6 +480,16 @@ async function q(criteria, order = ''){
 
 function generateChips(filters) {
   let html = ``;
+  
+  // add services filter
+  html+=`
+    <div class="chip" id="chip-services">
+    <p class="chip-key">free to me</p>
+    <div class="chip-contents" id="chip-contents-services">
+    </div>
+  </div>
+  `
+
   //let keys = [];
   filters.forEach((filter) => {
     let operatorsHtml = ``;
@@ -520,15 +537,6 @@ function generateChips(filters) {
     //keys.push(filter.key)
     
   });
-
-  // add services filter
-  html+=`
-    <div class="chip" id="chip-services">
-    <p class="chip-key">free to me</p>
-    <div class="chip-contents" id="chip-contents-services">
-    </div>
-  </div>
-  `
 
   // Inject the compiled HTML into the chip-container div
   document.getElementById("chip-container").innerHTML = html;
