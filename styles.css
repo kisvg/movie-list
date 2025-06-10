@@ -46,8 +46,6 @@ input{
 
 textarea {
     resize: none;
-    width: 100%;
-    height: 100px;
     background-color: var(--clr-primary);
 }
 
@@ -111,7 +109,7 @@ button{
     gap: 10px;
     align-items: flex-start;
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-around;
 }
 
 .grid-view .movie {
@@ -441,6 +439,9 @@ button{
 #pop-notes{
     margin-bottom: 5vh;
     margin-top: 5px;
+    width: 100%;
+    height: 100px;
+    box-sizing: border-box;
 }
 
 /*#endregion popup*/
@@ -479,5 +480,8 @@ button{
     }
     .popup.active{
         top:0;
+    }
+    .list.grid-view{
+        justify-content: space-evenly;
     }
 }

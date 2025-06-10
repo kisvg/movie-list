@@ -123,10 +123,15 @@ export async function saveServiceList(serviceList){
   await setDoc(doc(db,"cloud","services"),serviceList)
 }
 
-// TODO: change based on user preference
-document.getElementById("list").classList.add("list-view");
-document.getElementById("button-list").classList.add("active");
-
+// TODO(?): change default based on user preference
+if (window.innerWidth > 500){
+  document.getElementById("list").classList.add("list-view");
+  document.getElementById("button-list").classList.add("active");
+}
+else{
+  document.getElementById("list").classList.add("grid-view");
+  document.getElementById("button-grid").classList.add("active");
+}
 
 //#region managing data
 
