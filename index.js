@@ -406,14 +406,15 @@ var table_columns = {
   // title:{header:"Title", display:true},
   // timestamp shows up funny because firebase
   timestamp:{header:"Time Added", display:false},
+  rtrating:{header:"Rotten Tomatoes", display:true},
   csrating:{header:"CSM Rating", display:true},
   runtime:{header:"Length", display:true},
   // either "movie" or "tv"
   type:{header:"Type", display:false},
-  year:{header:"Year Released", display:true},
+  year:{header:"Year Released", display:false},
   releasedate:{header:"Release Date", display:false},
   notes:{header:"Notes", display:false},
-  rtrating:{header:"Rotten Tomatoes", display:true},
+  
 }
 
 function movieElement(movie) {
@@ -432,7 +433,7 @@ function movieElement(movie) {
   Object.keys(table_columns).forEach(key =>{
     let value = data[key]
     if(table_columns[key]["display"]){
-      if(value==null){
+      if(value==null || value=="N/A"){
         value = "N/A"
         key+=" ghost"
       }
