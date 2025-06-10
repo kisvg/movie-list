@@ -10,6 +10,9 @@
     /*--clr-tertiary: rgb(70,70,70);*/
     --clr-faded: rgb(190,190,190);
     --clr-ghost: rgb(60,60,60);
+
+    --font-p: 10vw;
+    --font-h1:
 }
 
 *{
@@ -48,6 +51,7 @@ button{
     background-color: var(--clr-primary);
     border-radius: 5px;
     margin: 5px;
+    padding: 6px;
 }
 
 .faded{
@@ -57,6 +61,7 @@ button{
 .ghost{
     color: var(--clr-ghost);
 }
+
 /*
 ::placeholder{
     text-align: center;
@@ -199,7 +204,10 @@ button{
 /*#region filters */
 
 #apply-filters{
-    margin: 10px 0 15px 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .service-list-container{
@@ -285,9 +293,11 @@ button{
     transition: all 0.3s ease; 
 }
 
-.close-pop{
+#close-pop{
     cursor: pointer;
     font-size: 20px;
+    padding: 20px;
+    margin: -20px;
 }
 
 .pop-bg {
@@ -313,7 +323,6 @@ button{
     transition: all 0.3s;
 }
 
-
 .pop-content {
     visibility: hidden;
 }
@@ -322,9 +331,34 @@ button{
     visibility: visible;
 }
 
+#mark-watched{
+    float: right;
+    display: inline;
+    margin: 0;
+    margin-bottom: -50px;
+}
+
+#pop-title-row{
+    display: flex;
+    gap: 10px;
+    /*
+    margin-top: 0;
+    margin-bottom: 0;
+    */
+    align-items: center;
+}
+
+#pop-title{
+    display: inline;
+}
+/*
+#pop-year{
+    display: inline;
+}
+*/
 .pop-grid{
     display: grid;
-    grid-template-columns: 50% auto;
+    grid-template-columns: 20% auto;
     grid-template-rows: auto;
     gap: 16px;
 }
@@ -337,10 +371,6 @@ button{
     grid-column: 2;
 }
 
-#mark-watched{
-    float: right;
-}
-
 .pop-services, .pop-genres{
     display: flex;
     justify-content: flex-start;
@@ -351,7 +381,7 @@ button{
 
 .service, .genre{
     display: inline-flex;
-    padding: 5px;
+    padding: 8px;
     border: 1px solid white;
     border-radius: 5px;
     background-color: var(--clr-secondary);
@@ -368,6 +398,24 @@ button{
 #pop-poster{
     border-radius: 5px;
     width: 100%;
+}
+
+#pop-rtrating-grid, #pop-csrating-grid{
+    display: grid;
+    grid-template-columns: 30px auto;
+    gap: 5px;
+    align-items: center;
+}
+
+#pop-rtlogo, #pop-cslogo{
+    grid-column: 1;
+    width: 100%
+}
+
+#pop-csrating{
+    width: 30px;
+    height: 30px;
+    text-align: center;
 }
 
 #pop-notes{
@@ -400,4 +448,15 @@ button{
 
 #message{
     margin: 0;
+}
+
+@media /*only screen and*/ (width <= 500px) {
+    .popup{
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+    }
+    .popup.active{
+        top:0;
+    }
 }

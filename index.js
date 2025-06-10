@@ -270,7 +270,7 @@ async function getTmdb(name) {
       newMovie["poster"] = "https://image.tmdb.org/t/p/w300_and_h450_bestv2"+data.poster_path //y
     }
     else{
-      newMovie["poster"] = "placeholder.png"
+      newMovie["poster"] = "./images/placeholder.png"
     }
     initialdata = await get ("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
     newMovie["imdbid"] = initialdata.imdb_id //n
@@ -408,13 +408,13 @@ var table_columns = {
   year:{header:"Year Released", display:true},
   releasedate:{header:"Release Date", display:false},
   notes:{header:"Notes", display:false},
-  rtrating:{header:"RottenTomatoes", display:true},
+  rtrating:{header:"Rotten Tomatoes", display:true},
 }
 
 function movieElement(movie) {
   let data = movie.data;
   let id = movie.id;
-  let poster = "placeholder.png"
+  let poster = "./images/placeholder.png"
   if (data.poster){
     poster = data.poster
   }
@@ -730,7 +730,7 @@ async function openPop(movieId) {
     }
     document.getElementById("pop-rtrating").innerHTML=rtrating
     //images
-    let poster = "placeholder.png"
+    let poster = "./images/placeholder.png"
     if (data.poster){
       poster = data.poster
     }

@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Movie List</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="styles.css">
         <!-- load icon library -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -9,7 +10,7 @@
     <body>
         <input type="text" id="input-add-movie" placeholder="Enter movie/show name">
         <button id="button-add-movie">Add movie</button>
-
+        
         <!-- Buttons to choose list or grid view -->
         <button id="button-grid">
             <i class="fa fa-th-large"></i> Grid
@@ -44,20 +45,28 @@
                 <span id="close-pop" class="close-pop">&times;</span>
                 <!-- or I could put this in c2 -->
                 <button id="mark-watched">Mark as watched</button>
+                <div id="pop-title-row">
+                    <h1 id="pop-title"></h1>
+                    <p id="pop-year" class="faded"></p>
+                </div>
                 <div class="pop-grid" id="pop-grid">
                     <div class="c1" id="c1">
-                        <h1 id="pop-title"></h1>
                         <img id="pop-poster">
                     </div>
                     <div class="c2" id="c2">
-                        <p id="pop-year" class="faded"></p>
                         <h3>Streaming Services </h3>
                         <div id="pop-services"></div>
                         <h3>Genres </h3>
                         <div id="pop-genres"></div>
-                        <h3>Common Sense Rating </h3>
-                        <input id="pop-csrating"></input>
-                        <h3>RottenTomatoes </h3>
+                        <div id="pop-csrating-grid">
+                            <img id="pop-cslogo" src="./images/commonsense.svg">
+                            <h3>Common Sense Rating </h3>
+                        </div>
+                        <input id="pop-csrating" placeholder="add"></input>
+                        <div id="pop-rtrating-grid">
+                            <img id="pop-rtlogo" src="./images/rottentomatoes.svg">
+                            <h3>Rotten Tomatoes </h3>
+                        </div>
                         <p id="pop-rtrating"></p>
                     </div>
                 </div>
