@@ -10,7 +10,7 @@ export async function renderServiceList(service_list){
       html +=  `
         <div class="service-item">
           <input type="checkbox" checked="true" />
-          <input type="text" class="service-input" placeholder="Enter streaming service..." value="${service}"></input>
+          <input type="text" class="service-input" placeholder="Enter streaming service" value="${service}"></input>
         </div>
       `
     }
@@ -19,7 +19,7 @@ export async function renderServiceList(service_list){
       html +=  `
         <div class="service-item">
           <input type="checkbox" />
-          <input type="text" class="service-input" placeholder="Enter streaming service..." value="${service}"></input>
+          <input type="text" class="service-input" placeholder="Enter streaming service" value="${service}"></input>
         </div>
       `
     }
@@ -28,7 +28,7 @@ export async function renderServiceList(service_list){
   html +=`
     <div class="service-item">
       <input type="checkbox" id="service-checkbox-last"/>
-      <input type="text" class="service-input" placeholder="Enter streaming service..." id="service-input-last"></input>
+      <input type="text" class="service-input" placeholder="Enter streaming service" id="service-input-last"></input>
     </div>
   `
   document.getElementById("service-list").innerHTML = html
@@ -82,7 +82,7 @@ export function updateServiceList(){
   document.getElementById('service-list').insertAdjacentHTML("beforeend", `
       <div class="service-item">
       <input type="checkbox" class="checkbox"/>
-      <input type="text" class="service-input" placeholder="Enter streaming service..." id="service-input-last-placeholder"></input>
+      <input type="text" class="service-input" placeholder="Enter streaming service" id="service-input-last-placeholder"></input>
       </div>
   `)
 

@@ -23,6 +23,7 @@
 
 body{
     background-color: var(--clr-bg);
+    margin: 8px;
 }
 
 .no-scroll{
@@ -74,7 +75,7 @@ button{
 /*#endregion theme */
 
 #input-add-movie{
-    width: 500px;
+    width: min(30vw, 400px);
     height: 20px;
     padding: 5px;
     margin-bottom: 10px;
@@ -110,7 +111,7 @@ button{
     gap: 10px;
     align-items: flex-start;
     flex-direction: row;
-    /*justify-content: center;*/
+    justify-content: center;
 }
 
 .grid-view .movie {
@@ -123,7 +124,7 @@ button{
     background: var(--clr-primary);
     */
     /*padding: 10px 10px 0 10px;*/
-    width: 190px;
+    width: min(200px,40%);
     min-height: 360px;
 
 }
@@ -162,10 +163,12 @@ button{
 .list.list-view{
     display: table;
     width: 100%;
+    table-layout: fixed;
 }
 
 .list-view .row{
     display: table-row;
+    background-color: var(--clr-bg);
 }
 
 .list-view .row:nth-child(even){
@@ -182,6 +185,8 @@ button{
     padding-bottom: 12px;
     text-align: left;
     cursor:default;
+    /*for now*/
+    word-wrap: break-word;
 }
 
 .list-view .cell{
@@ -229,8 +234,9 @@ button{
 
 .chip-container {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap:nowrap;
     gap: 8px;
+    overflow-x: auto;
 }
 
 .chip {
@@ -243,6 +249,7 @@ button{
     user-select: none; /*can't select text*/
     align-items: center;
     display: flex;
+    text-wrap-mode: nowrap;
 }
 
 .chip.active {
@@ -384,7 +391,7 @@ button{
     display: flex;
     justify-content: flex-start;
     flex-wrap: nowrap;
-    gap: 5px;
+    gap: 6px;
     margin-bottom: 15px;
     margin-top: 5px;
 }
@@ -395,7 +402,8 @@ button{
     border: 1px solid white;
     border-radius: 6px;
     background-color: var(--clr-secondary);
-    margin: 3px;
+    text-align: center;
+    align-items: center;
 }
 /*
 .pop-genres{
@@ -432,6 +440,7 @@ button{
 
 #pop-notes{
     margin-bottom: 5vh;
+    margin-top: 5px;
 }
 
 /*#endregion popup*/

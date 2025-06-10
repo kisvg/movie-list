@@ -56,7 +56,7 @@ function addTriggers(){
   }
   document.getElementById("save-service-list").onclick = async function(){
     await saveServiceList(service_list.getServiceList())
-    displayNotification("Service List Saved")
+    displayNotification("Service list saved")
     document.getElementById('service-list-container').classList.remove('active')
   };
   //add movie
@@ -742,18 +742,18 @@ async function openPop(movieId) {
     try{
       if(data.services.length == 0){
         //if no services
-        document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
+        document.getElementById("pop-services").innerHTML=`<div class="no-service faded"> Not streaming. </div>`
       }
       else{
         //if there are services
-        document.getElementById("pop-services").innerHTML=`<div class=service>${data.services.join("</div><div class='service'>")}</div>`
+        document.getElementById("pop-services").innerHTML=`<div class="service">${data.services.join("</div><div class='service'>")}</div>`
       }
     }
     catch(e){
       // because that might not work for some reason
-      document.getElementById("pop-services").innerHTML=`<div class=no-service> No streaming services. </div>`
+      document.getElementById("pop-services").innerHTML=`<div class="no-service faded"> Not streaming. </div>`
     }
-    document.getElementById("pop-genres").innerHTML=`<div class=genre>${data.genres.join("</div><div class='genre'>")}</div>`
+    document.getElementById("pop-genres").innerHTML=`<div class="genre">${data.genres.join("</div><div class='genre'>")}</div>`
   } 
   else {
     // docSnap.data() will be undefined in this case
