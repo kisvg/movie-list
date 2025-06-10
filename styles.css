@@ -29,6 +29,10 @@ body{
     overflow: hidden;
 }
 
+h3{
+    margin: 0;
+}
+
 select{
     background-color: var(--clr-bg);
     border-radius: 3px;
@@ -112,11 +116,13 @@ button{
 .grid-view .movie {
     display: flex;
     flex-direction: column; /* Stack the thumbnail and movie name vertically */
+    /*
     align-items: center;
     text-align: center;
     border-radius: 15px;
     background: var(--clr-primary);
-    padding: 10px 10px 0 10px;
+    */
+    /*padding: 10px 10px 0 10px;*/
     width: 190px;
     min-height: 360px;
 
@@ -125,9 +131,12 @@ button{
 .grid-view .poster {
     display: flex;
     align-items: center;
-    /*justify-content: center;*/
-    font-size: 15px;
+    /*
+    justify-content: center;
     border-radius: 5px;
+    */
+    font-size: 15px;
+    
     grid-column: 1;
     width: 100%;
 }
@@ -371,19 +380,20 @@ button{
     grid-column: 2;
 }
 
-.pop-services, .pop-genres{
+#pop-services, #pop-genres{
     display: flex;
     justify-content: flex-start;
     flex-wrap: nowrap;
     gap: 5px;
-    
+    margin-bottom: 15px;
+    margin-top: 5px;
 }
 
 .service, .genre{
     display: inline-flex;
     padding: 8px;
     border: 1px solid white;
-    border-radius: 5px;
+    border-radius: 6px;
     background-color: var(--clr-secondary);
     margin: 3px;
 }
@@ -416,6 +426,8 @@ button{
     width: 30px;
     height: 30px;
     text-align: center;
+    margin-top: 5px;
+    margin-bottom: 15px;
 }
 
 #pop-notes{
