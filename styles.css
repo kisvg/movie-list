@@ -245,7 +245,7 @@ button{
     border-radius: 20px;
     cursor: pointer;
     user-select: none; /*can't select text*/
-    align-items: center;
+    /*align-items: center;*/
     display: flex;
     text-wrap-mode: nowrap;
 }
@@ -257,6 +257,7 @@ button{
 
 .chip-key{
     display: inline; 
+    margin: 0;
 }
 
 .chip-contents{

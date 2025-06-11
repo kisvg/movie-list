@@ -5,7 +5,7 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebas
 import { 
   getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, 
   onSnapshot, 
-  query, where, orderBy, limit, serverTimestamp 
+  query, where, orderBy, limit, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -68,6 +68,9 @@ function addTriggers(){
     if (event.key === "Enter") {
       addMovie(document.getElementById("input-add-movie").value)
     }
+  })
+  document.getElementById("order").addEventListener("change", function(event) {
+    applyFilters()
   })
   //popup
   document.getElementById("mark-watched").onclick = async function(){
@@ -469,6 +472,7 @@ function clearList(){
   document.getElementById("list").innerHTML = markup;
 }
 
+//unused
 async function q(criteria, order = ''){
   if (order){
 
@@ -483,6 +487,7 @@ async function q(criteria, order = ''){
   });
   */
 }
+
 
 function generateChips(filters) {
   let html = ``;
@@ -552,7 +557,7 @@ function generateChips(filters) {
     toggleFilter('services');
   }
 
-  //make service filter toggled initially (by default)
+  // make service filter toggled initially (by default)
   globalThis.doServiceFilter = true
   document.getElementById(`chip-services`).classList.toggle('active')
   
@@ -561,6 +566,7 @@ function generateChips(filters) {
     applyFilters()
   })
 
+  //TODO: make it so clicking on "is over" in rtrating deactivates the chip
   filters.forEach((filter)=>{
     let key = filter.key
     document.getElementById(`chip-${key}`).onclick = function(){toggleFilter(key)}
@@ -624,7 +630,6 @@ async function applyFilters(){
     try {
       // Execute all queries concurrently
       const querySnapshots = await Promise.all(queries.map(q => getDocs(query(unwatchedRef, where(q.key,q.operator,q.value)))));
-      //populate(querySnapshots[0])
 
       populate_multiple(querySnapshots)
 
@@ -639,8 +644,6 @@ async function applyFilters(){
   }
 }
 
-// TODO: allow for zero filters
-// did I do this?
 function populate_multiple(querySnapshots){
   // Delete previous inserted HTML
   clearList();
@@ -664,14 +667,39 @@ function populate_multiple(querySnapshots){
   let commonMovies = allMovies.reduce((acc, current) => {
     return acc.filter(movie => current.some(item => item.id === movie.id));
   });
+  console.log(commonMovies)
+
+  let order = document.getElementById("order").value
+  console.log(order)
+  let direction = "asc"
+  commonMovies=commonMovies.sort((a, b) => {
+    a = a.data[order]
+    b = b.data[order]
+    console.log(a)
+    if (order == "timestamp"){
+      a = Number(a.seconds)
+      b = Number(b.seconds)
+    }
+    // null / undefined values go to end
+    if (a == null) return 1
+    if (b == null) return -1
+
+    // if numbers, sort numerically
+    if (typeof a === "number" && typeof b === "number") {
+      return a - b
+    }
+    // otherwise, sort as strings
+    return String(a).localeCompare(String(b))
+  })
+  console.log(commonMovies)
 
   // Display the common movies
   commonMovies.forEach(movie => {
     var markup = movieElement(movie);
-    document.querySelector('.list').insertAdjacentHTML('beforeend', markup);
+    document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
     // Triggers for opening popup
     let id = movie.id
-    document.getElementById(id).onclick = function() { openPop(id); };
+    document.getElementById(id).onclick = function() {openPop(id)}
   });
 }
 
