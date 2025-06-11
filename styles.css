@@ -71,7 +71,11 @@ button{
 }
 */
 /*#endregion theme */
-
+/*
+#body-header{
+    margin-bottom: 5px;
+}
+*/
 .movie{
     cursor: pointer;
 }
@@ -80,7 +84,6 @@ button{
     width: min(30vw, 400px);
     height: 20px;
     padding: 5px;
-    margin-bottom: 10px;
 }
 
 #save-service-list{
@@ -223,10 +226,7 @@ button{
 /*#region filters */
 
 #apply-filters{
-    margin-top: 10px;
-    margin-bottom: 10px;
-    margin-left: 0;
-    margin-right: 0;
+    margin: 0;
 }
 
 .service-list-container{
@@ -242,6 +242,8 @@ button{
     flex-wrap:nowrap;
     gap: 8px;
     overflow-x: auto;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .chip {

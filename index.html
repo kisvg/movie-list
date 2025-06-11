@@ -8,42 +8,44 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     </head>
     <body>
-        <input type="text" id="input-add-movie" placeholder="Movie/show name">
-        <button id="button-add-movie">Add</button>
-        
-        <!-- Buttons to choose list or grid view -->
-        <div id="view-container">
-            <button id="button-grid">
-                <i class="fa fa-th-large"></i> Grid
-            </button>
-            <button id="button-list">
-                <i class="fa fa-bars"></i> List
-            </button>
-        </div>
-
-        <!--service list-->
-        <button id="edit-services">Edit services</button>
-        <div id="service-list-container" class="service-list-container">
-            <p>Check the services we are subscribed to</p>
-            <div id="service-list">
-                <!--service list here-->
+        <div id="body-header">
+            <input type="text" id="input-add-movie" placeholder="Movie/show name">
+            <button id="button-add-movie">Add</button>
+            
+            <!-- Buttons to choose list or grid view -->
+            <div id="view-container">
+                <button id="button-grid">
+                    <i class="fa fa-th-large"></i> Grid
+                </button>
+                <button id="button-list">
+                    <i class="fa fa-bars"></i> List
+                </button>
             </div>
-            <button id="save-service-list">save</button>
-        </div>
 
-        <!-- filter system -->
-        <div class="chip-container" id="chip-container">
-        </div>
-        <div id="order-container">
-            <label for="order">Order by</label>
-            <select name="order" id="order">
-                <option value="timestamp">Time added</option>
-                <option value="rtrating">Rotten Tomatoes</option>
-                <option value="csrating">Common Sense</option>
-                <option value="year">Release date</option>
-                <option value="title">Alphabetical</option>
-            </select>
-            <button id="reverse-order"><i class="fa fa-sort"></i><p style="display: inline; margin-left: 5px;">Reverse</p></button>
+            <!--service list-->
+            <button id="edit-services">Edit services</button>
+            <div id="service-list-container" class="service-list-container">
+                <p>Check the services we are subscribed to</p>
+                <div id="service-list">
+                    <!--service list here-->
+                </div>
+                <button id="save-service-list">save</button>
+            </div>
+
+            <!-- filter system -->
+            <div class="chip-container" id="chip-container">
+            </div>
+            <div id="order-container">
+                <label for="order">Order by</label>
+                <select name="order" id="order">
+                    <option value="timestamp">Time added</option>
+                    <option value="rtrating">Rotten Tomatoes</option>
+                    <option value="csrating">Common Sense</option>
+                    <option value="year">Release date</option>
+                    <option value="title">Alphabetical</option>
+                </select>
+                <button id="reverse-order"><i class="fa fa-sort"></i><p style="display: inline; margin-left: 5px;">Reverse</p></button>
+            </div>
         </div>
         
         <div class="list" id="list">
