@@ -91,7 +91,6 @@ button{
     display: flex;
     flex-wrap: nowrap;
     gap:5px;
-    float: right;
 }
 
 #button-list,#button-grid{
@@ -116,6 +115,7 @@ button{
     align-items: flex-start;
     flex-direction: row;
     justify-content: space-around;
+    width: 100%;
 }
 
 .grid-view .movie {
