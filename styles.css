@@ -1,5 +1,7 @@
 /*#region theme */
 
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
 /* I think the naming conventions are wrong here but ah well */
 :root {
     --clr-accent: rgb(90, 62, 191);
@@ -14,8 +16,6 @@
     --font-p: 10vw;
     --font-h1:
 }
-
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
 
 *{
     color: white;
@@ -37,8 +37,22 @@ body{
     overflow: hidden;
 }
 
+h1{
+    font-weight: 800;
+}
+
+h2{
+    font-size: 1em;
+    font-weight: 600;
+}
+
 h3{
-    margin: 0;
+    font-weight:600;
+}
+
+p{
+    font-weight: 400;
+    /*font-size: 1em;*/
 }
 
 select{
@@ -71,6 +85,15 @@ button{
 
 .ghost{
     color: var(--clr-ghost);
+}
+
+.hide{
+    display:none;
+}
+
+.grayscale{
+    filter:contrast(30%) grayscale(1);
+    /*-webkit-filter: grayscale(1);*/
 }
 
 /*
@@ -118,6 +141,21 @@ button{
     background-color: var(--clr-accent);
 }
 
+/* hide unnecessary list view elements (details) if grid view */
+.list.grid-view .cell:not(.title, .rtrating, .csrating){
+    display: none;
+}
+
+/* hide headers and icons if grid view */
+.list.grid-view .headers{
+    display: none;
+}
+
+/* hide icons if list view */
+.list.list-view .grid-view-rtrating-logo, .list.list-view .grid-view-csrating-logo{
+    display: none;
+}
+
 /*#region grid view */
 
 .list.grid-view{
@@ -145,7 +183,6 @@ button{
 }
 
 .grid-view .poster {
-    display: flex;
     align-items: center;
     /*
     justify-content: center;
@@ -169,14 +206,16 @@ button{
     margin-top: 10px;
 }
 
-/* hide list view elements (details) if grid view */
-.list.grid-view .cell:not(.title){
-    display: none;
+.cell.rtrating, .cell.csrating{
+    display: grid;
+    grid-template-columns: 20px auto;
+    grid-template-rows: auto;
+    gap: 5px;
+    align-items: center;
 }
 
-/* hide headers if grid view */
-.list.grid-view .headers{
-    display: none;
+.grid-view-rtrating-logo, .grid-view-csrating-logo{
+    width: 100%;
 }
 
 /*#endregion grid view */
@@ -212,7 +251,7 @@ button{
     word-wrap: break-word;
 }
 
-.list-view .cell{
+.list-view .cell:not(.hide){
     display: table-cell;
     /*border: 1px solid #595959;*/
     padding-right: max(20px,auto);

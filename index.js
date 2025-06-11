@@ -42,12 +42,14 @@ function addTriggers(){
   document.getElementById("button-list").onclick = function(){
     document.getElementById("button-list").classList.add("active");
     document.getElementById("button-grid").classList.remove("active");
+
     document.getElementById("list").classList.add("list-view");
     document.getElementById("list").classList.remove("grid-view");
   }
   document.getElementById("button-grid").onclick = function(){
     document.getElementById("button-grid").classList.add("active");
     document.getElementById("button-list").classList.remove("active");
+
     document.getElementById("list").classList.remove("list-view");
     document.getElementById("list").classList.add("grid-view");
   }
@@ -444,26 +446,45 @@ function movieElement(movie) {
       <h2 class="title cell">${data.title}</h2>
       <!--details-->
     `
-  Object.keys(table_columns).forEach(key =>{
+  Object.keys(table_columns).forEach(key => {
     let value = data[key]
-    if(table_columns[key]["display"]){
+    let subMarkup = ""
+    let divClasses = `cell ${key}`
+    // a delicate stack of code
+    let imgList=["rtrating","csrating"]
+    if (imgList.includes(key)){
+      let gray = ""
       if(value==null || value=="N/A"){
-        value = "N/A"
-        key+=" ghost"
+        // gray it out
+        gray = "grayscale "
       }
-      else{
-        if(key=="rtrating"){
-          value += "%"
-        }
-      }
-      markup += `<p class="${key} cell">${value}</p>`
+      subMarkup += `<img class="${gray}grid-view-${key}-logo" src="./images/${key}.svg">`
     }
+
+    if(!table_columns[key]["display"]){
+      divClasses+=" hide"
+    }
+
+    if(value==null || value=="N/A"){
+      value = "N/A"
+      key+=" ghost"
+    }
+    else{
+      if(key=="rtrating"){
+        value += "%"
+      }
+    }
+    subMarkup = `<div class="${divClasses}">`+subMarkup
+    subMarkup +=`
+        <p class="${key}">${value}</p>
+      </div>`
+  markup += subMarkup
+    /*markup += `<p class="${key} cell">${value}</p>`*/
   })
   markup+=`
     </div>
   `
   return markup
-  
 }
 
 function clearList(){
@@ -673,22 +694,11 @@ function populate_multiple(querySnapshots){
     });
     allMovies.push(unwatched);
   });
-
   // Find the intersection of movies across all querySnapshots
   let commonMovies = allMovies.reduce((acc, current) => {
     return acc.filter(movie => current.some(item => item.id === movie.id));
   });
-
-  commonMovies=commonMovies.sort((a, b) => {return orderMovies(a,b)})
-
-  // Display the common movies
-  commonMovies.forEach(movie => {
-    var markup = movieElement(movie);
-    document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
-    // Triggers for opening popup
-    let id = movie.id
-    document.getElementById(id).onclick = function() {openPop(id)}
-  });
+  orderDisplay(commonMovies)
 }
 
 function populate(querySnapshot){
@@ -701,14 +711,21 @@ function populate(querySnapshot){
       data: doc.data()
     })
   })
+  orderDisplay(unwatched)
+}
+
+// orders and displays movies
+function orderDisplay(unwatched){
   unwatched = unwatched.sort((a, b) => {return orderMovies(a,b)})
+  clearList()
+  // display common movies
   unwatched.forEach(movie => {
     var markup = movieElement(movie)
     document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
     //triggers for opening popup
     let id = movie.id
     document.getElementById(id).onclick = function() {openPop(id)};
-  });
+  })
 }
 
 function orderMovies(a,b){
