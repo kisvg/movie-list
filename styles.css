@@ -91,6 +91,7 @@ button{
     display: flex;
     flex-wrap: nowrap;
     gap:5px;
+    float: right;
 }
 
 #button-list,#button-grid{
