@@ -70,6 +70,8 @@ function addTriggers(){
       addMovie(document.getElementById("input-add-movie").value)
     }
   })
+  //another thing
+  document.getElementById('apply-filters').onclick = function() {applyFilters()};
   //order
   document.getElementById("order").addEventListener("change", function(event) {
     globalThis.reverseOrder = false
@@ -748,9 +750,6 @@ const update = onSnapshot(unwatchedRef, (querySnapshot) => {
 });
 
 generateChips(filters);
-
-document.getElementById("chip-container").insertAdjacentHTML("afterend", `<button id="apply-filters">filter</button>`);
-document.getElementById('apply-filters').onclick = function() {applyFilters()};
 
 //#endregion
 

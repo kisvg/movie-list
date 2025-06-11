@@ -15,15 +15,22 @@
     --font-h1:
 }
 
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
 *{
     color: white;
     border-color: white;
     accent-color: var(--clr-accent);
+    margin: 0;
+    padding: 0;
+
+    font-family: "Poppins", sans-serif;
+    text-decoration: none;
 }
 
 body{
     background-color: var(--clr-bg);
-    margin: 8px;
+    margin: 5px;
 }
 
 .no-scroll{
@@ -47,6 +54,7 @@ input{
 textarea {
     resize: none;
     background-color: var(--clr-primary);
+    padding: 5px;
 }
 
 button{
@@ -71,11 +79,11 @@ button{
 }
 */
 /*#endregion theme */
-/*
+
 #body-header{
     margin-bottom: 5px;
 }
-*/
+
 .movie{
     cursor: pointer;
 }
@@ -134,7 +142,6 @@ button{
     /*padding: 10px 10px 0 10px;*/
     width: min(200px,40%);
     min-height: 360px;
-
 }
 
 .grid-view .poster {
@@ -148,10 +155,18 @@ button{
     
     grid-column: 1;
     width: 100%;
+    transition: all 0.1s ease;
+}
+
+.grid-view .poster:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
+    transition: all 0.1s ease;
 }
 
 .grid-view .title {
     margin-bottom: 5px;
+    margin-top: 10px;
 }
 
 /* hide list view elements (details) if grid view */
@@ -225,6 +240,16 @@ button{
 
 /*#region filters */
 
+#last-header-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    text-wrap-mode: nowrap;
+    gap: 10px;
+}
+
 #apply-filters{
     margin: 0;
 }
@@ -248,7 +273,7 @@ button{
 
 .chip {
     padding: 5px 10px;
-    height:20px;
+    height: 20px;
     background-color: var(--clr-secondary);
     border: 1px solid var(--clr-primary);
     border-radius: 20px;
@@ -302,6 +327,9 @@ button{
     background-color: var(--clr-secondary);
 }
 
+#reverse-order{
+    margin: 0;
+}
 
 #reverse-order.active{
     background-color: var(--clr-accent);
@@ -384,11 +412,9 @@ button{
 
 #pop-title-row{
     display: flex;
-    gap: 10px;
-    /*
-    margin-top: 0;
-    margin-bottom: 0;
-    */
+    gap: 15px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     align-items: center;
 }
 
@@ -402,7 +428,7 @@ button{
 */
 .pop-grid{
     display: grid;
-    grid-template-columns: 20% auto;
+    grid-template-columns: 25% auto;
     grid-template-rows: auto;
     gap: 16px;
 }
@@ -418,7 +444,7 @@ button{
 #pop-services, #pop-genres{
     display: flex;
     justify-content: flex-start;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 6px;
     margin-bottom: 15px;
     margin-top: 5px;
@@ -466,6 +492,16 @@ button{
     margin-bottom: 15px;
 }
 
+#pop-rtrating{
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+#pop-plot{
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
 #pop-notes{
     margin-bottom: 5vh;
     margin-top: 5px;
@@ -488,7 +524,7 @@ button{
     align-items: center;
     border-radius: 5px;
     gap: 5px;
-    padding: 5px;
+    padding: 8px;
 
     transition: all 1s ease;
 }
