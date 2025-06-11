@@ -72,6 +72,10 @@ button{
 */
 /*#endregion theme */
 
+.movie{
+    cursor: pointer;
+}
+
 #input-add-movie{
     width: min(30vw, 400px);
     height: 20px;
@@ -83,22 +87,24 @@ button{
     margin-top: 5px;
 }
 
-#button-list,#button-grid{
+#view-container{
+    display: flex;
+    flex-wrap: nowrap;
+    gap:5px;
     float: right;
+}
+
+#button-list,#button-grid{
+    margin: 0;
     padding:5px;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 5px;
-    margin: 3px;
 }
 
 #button-list.active,#button-grid.active{
     background-color: var(--clr-accent);
-}
-
-.movie{
-    cursor: pointer;
 }
 
 /*#region grid view */
