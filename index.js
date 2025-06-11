@@ -34,6 +34,7 @@ import * as service_list from './service_list.js'
 async function main(){
   addTriggers()
   await loadServiceList()
+  globalThis.reverseOrder = false
 }
 
 function addTriggers(){
@@ -69,9 +70,17 @@ function addTriggers(){
       addMovie(document.getElementById("input-add-movie").value)
     }
   })
+  //order
   document.getElementById("order").addEventListener("change", function(event) {
+    globalThis.reverseOrder = false
+    document.getElementById("reverse-order").classList.remove("active")
     applyFilters()
   })
+  document.getElementById("reverse-order").onclick = function(){
+    globalThis.reverseOrder = !globalThis.reverseOrder
+    document.getElementById("reverse-order").classList.toggle("active")
+    applyFilters()
+  }
   //popup
   document.getElementById("mark-watched").onclick = async function(){
     await moveData("unwatched",globalThis.currentId,"watched")
@@ -667,31 +676,8 @@ function populate_multiple(querySnapshots){
   let commonMovies = allMovies.reduce((acc, current) => {
     return acc.filter(movie => current.some(item => item.id === movie.id));
   });
-  console.log(commonMovies)
 
-  let order = document.getElementById("order").value
-  console.log(order)
-  let direction = "asc"
-  commonMovies=commonMovies.sort((a, b) => {
-    a = a.data[order]
-    b = b.data[order]
-    console.log(a)
-    if (order == "timestamp"){
-      a = Number(a.seconds)
-      b = Number(b.seconds)
-    }
-    // null / undefined values go to end
-    if (a == null) return 1
-    if (b == null) return -1
-
-    // if numbers, sort numerically
-    if (typeof a === "number" && typeof b === "number") {
-      return a - b
-    }
-    // otherwise, sort as strings
-    return String(a).localeCompare(String(b))
-  })
-  console.log(commonMovies)
+  commonMovies=commonMovies.sort((a, b) => {return orderMovies(a,b)})
 
   // Display the common movies
   commonMovies.forEach(movie => {
@@ -706,13 +692,14 @@ function populate_multiple(querySnapshots){
 function populate(querySnapshot){
   //delete previous inserted html
   clearList();
-  const unwatched = [];
+  let unwatched = [];
   querySnapshot.forEach((doc) => {
     unwatched.push({
       id: doc.id, 
       data: doc.data()
     })
-  });
+  })
+  unwatched = unwatched.sort((a, b) => {return orderMovies(a,b)})
   unwatched.forEach(movie => {
     var markup = movieElement(movie)
     document.querySelector('.list').insertAdjacentHTML('beforeend', markup)
@@ -720,6 +707,36 @@ function populate(querySnapshot){
     let id = movie.id
     document.getElementById(id).onclick = function() {openPop(id)};
   });
+}
+
+function orderMovies(a,b){
+  let order = document.getElementById("order").value
+  let reverseOrder = globalThis.reverseOrder
+  let autoSwapList = ["timestamp","rtrating","csrating","year"]
+  if (autoSwapList.includes(order)){
+    reverseOrder = !reverseOrder
+  }
+  a = a.data[order]
+  b = b.data[order]
+  if (order == "timestamp"){
+    a = Number(a.seconds)
+    b = Number(b.seconds)
+  }
+  // null / undefined values go to end
+  if (a == null) return 1
+  if (b == null) return -1
+
+  //hack
+  if (reverseOrder){
+    [a,b] = [b,a]
+  }
+
+  // if numbers, sort numerically
+  if (typeof a === "number" && typeof b === "number") {
+    return a - b
+  }
+  // otherwise, sort as strings
+  return String(a).localeCompare(String(b))
 }
 
 // this runs if firestore updates or at the very beginning

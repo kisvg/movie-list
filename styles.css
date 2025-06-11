@@ -278,6 +278,26 @@ button{
     margin-left: 5px;
 }
 
+#order-container{
+    float: right;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: nowrap;
+    /*overflow-x: auto;*/
+}
+
+#order{
+    padding: 5px;
+    border-radius: 8px;
+    background-color: var(--clr-secondary);
+}
+
+
+#reverse-order.active{
+    background-color: var(--clr-accent);
+}
+
 /*#endregion filters*/
 
 /*#region popup*/

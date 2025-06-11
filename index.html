@@ -32,16 +32,17 @@
         <!-- filter system -->
         <div class="chip-container" id="chip-container">
         </div>
-        <label for="order"></label>
-        <select name="order" id="order">
-            <option value="title">Alphabetical</option>
-            <option value="timestamp">Time added</option>
-            <option value="rtrating">Rotten Tomatoes</option>
-            <option value="csrating">Common Sense</option>
-            <option value="year">Release date</option>
-            <option value="title">Alphabetical</option>
-        </select>
-
+        <div id="order-container">
+            <label for="order">Order</label>
+            <select name="order" id="order">
+                <option value="timestamp">Time added</option>
+                <option value="rtrating">Rotten Tomatoes</option>
+                <option value="csrating">Common Sense</option>
+                <option value="year">Release date</option>
+                <option value="title">Alphabetical</option>
+            </select>
+            <button id="reverse-order"><i class="fa fa-sort"></i><p style="display: inline; margin-left: 5px;">Reverse</p></button>
+        </div>
         <div class="list" id="list">
             <!-- movies go here-->
         </div>
