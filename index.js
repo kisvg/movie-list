@@ -436,55 +436,62 @@ var table_columns = {
 function movieElement(movie) {
   let data = movie.data;
   let id = movie.id;
+
   let poster = "./images/placeholder.png"
   if (data.poster){
     poster = data.poster
   }
-  let markup = `
-    <div class="movie row" id="${id}">
-      <img class="poster" src="${poster}">
-      <h2 class="title cell">${data.title}</h2>
-      <!--details-->
-    `
-  Object.keys(table_columns).forEach(key => {
+
+  let gray = {}
+  let markup = ``
+  Object.keys(data).forEach(key => {
     let value = data[key]
-    let subMarkup = ""
-    let divClasses = `cell ${key}`
-    // a delicate stack of code
-    let imgList=["rtrating","csrating"]
-    if (imgList.includes(key)){
-      let gray = ""
-      if(value==null || value=="N/A"){
-        // gray it out
-        gray = "grayscale "
-      }
-      subMarkup += `<img class="${gray}grid-view-${key}-logo" src="./images/${key}.svg">`
-    }
-
-    if(!table_columns[key]["display"]){
-      divClasses+=" hide"
-    }
-
+    gray[key] = ""
     if(value==null || value=="N/A"){
-      value = "N/A"
-      key+=" ghost"
+      gray[key] = "grayscale "
+      data[key] = "N/A"
     }
     else{
-      if(key=="rtrating"){
-        value += "%"
+      if(key == "rtrating"){
+        data[key]+="%"
       }
     }
-    subMarkup = `<div class="${divClasses}">`+subMarkup
-    subMarkup +=`
-        <p class="${key}">${value}</p>
-      </div>`
-  markup += subMarkup
-    /*markup += `<p class="${key} cell">${value}</p>`*/
   })
-  markup+=`
+
+  // only show specific columns
+  Object.keys(table_columns).forEach(key => {
+    if(table_columns[key].display){
+      let value = data[key]
+      if (gray[key]){
+        key+=" ghost"
+      }
+      markup+=`<p class="${key}">${value}</p>`
+    }
+  })
+
+  return `
+    <div class="movie" id="${id}">
+      <div class="grid">
+        <img class="poster" src="${poster}">
+        <h2 class="title">${data.title}</h2>
+        <div class="info-flex">
+          <div class = "rtrating-flex">
+            <img class="${gray.rtrating}rtrating-logo" src="./images/rtrating.svg">
+            <p>${data.rtrating}</p>
+          </div>
+          <div class = "csrating-flex">
+            <img class="${gray.csrating}csrating-logo" src="./images/csrating.svg">
+            <p>${data.csrating}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <p>${data.title}</p>
+        ${markup}
+      </div>
     </div>
-  `
-  return markup
+    `
 }
 
 function clearList(){
@@ -907,7 +914,7 @@ async function addMM(movies){
   };
 }
 
-let movies = ["American Dreamer","Bambi","Battle of the Sexes","Better Nate Than Ever","Bourne","Boyhood","Bridge to Terabithia","Clueless","Deaf Mute Heroine","Enchanted","Fantasia","Gilmore Girls","Ginny & Georgia","The Diplomat","Hollywood Stargirl","Into the Night","Irresistible","James Bond ","Knight and Day","Life Animated","Lord of the Rings","Mission Impossible ","Nick & Noras Infinite Playlist","Nomadland","Passengers","Planet of the Apes","Pop Star","Rocks","Say Anything","See You Yesterday","Sex Education","Shake the Dust","Short Circuit","Song of the Sea","Spaceship Earth","Sword of the Stranger","Tar","Ted Lasso","Tekkonkinkreet","The Call of the Wild","The Duff","The Kissing Booth","The Sandlot","Three Amigos","Time Travelers Wife","To Kill a Mockingbird","Umbrella Academy","Waltz with Bashir","Whats so Bad About Feeling Good?","Where to Invade Next","White Fang","Winter Days","Rocks","Fantastic Fungi","El Chivo","Lost City","The Prince of Egypt","Promare","The Secret of Kells","Endless Summer","1000 Me","Americanish","Kundun","Tony Hawk","Miss Congeniality","Super 8","Brothers of the Wind","Tonight Youre Mine","Dancer in the Dark","China Blue","The Point of No Return","La Femme Nikita","Beef","Dog Gone","Casa de papel","Divergent ","Cyrano","Creed","Brigsby Bear","Map of Tiny Perfect Things","Fried Green Tomatoes","The Sisterhood of the Traveling Pants","Gran Turismo","Archies","Family Switch","13 the musical","Secret Diary of an Exchange Student","Blackpink: Light up the sky","The Italian Job","Now You See Me","Logan Lucky","Theory of everything","Liar liar","Dumplin","500 days of summer","My Spy","One Piece: Baron Omatsuri and the Secret Island","Alien","Snatch","Mcfarland USA","9 to 5","Woman King","Bottle Shock","How I Met Your Mother","Flow","Scavengers Reign","Twilight of the Cockroaches"]
+let movies = ["American Dreamer","Bambi","Battle of the Sexes","Better Nate Than Ever","Bourne","Boyhood","Bridge to Terabithia","Clueless","Deaf Mute Heroine","Enchanted","Fantasia","Gilmore Girls","Ginny & Georgia","The Diplomat","Hollywood Stargirl","Into the Night","Irresistible","James Bond ","Knight and Day","Life Animated","Lord of the Rings","Mission Impossible ","Nick & Noras Infinite Playlist","Nomadland","Passengers","Planet of the Apes","Pop Star","Rocks","Say Anything","See You Yesterday","Sex Education","Shake the Dust","Short Circuit","Song of the Sea","Spaceship Earth","Sword of the Stranger","Tar","Ted Lasso","Tekkonkinkreet","The Call of the Wild","The Duff","The Kissing Booth","The Sandlot","Three Amigos","Time Travelers Wife","To Kill a Mockingbird","Umbrella Academy","Waltz with Bashir","Whats so Bad About Feeling Good?","Where to Invade Next","White Fang","Winter Days","Rocks","Fantastic Fungi","El Chivo","Lost City","The Prince of Egypt","Promare","The Secret of Kells","Endless Summer","1000 Me","Americanish","Kundun","Tony Hawk","Miss Congeniality","Super 8","Brothers of the Wind","Tonight Youre Mine","Dancer in the Dark","China Blue","The Point of No Return","La Femme Nikita","Beef","Dog Gone","Casa de papel","Divergent ","Cyrano","Creed","Brigsby Bear","Map of Tiny Perfect Things","Fried Green Tomatoes","The Sisterhood of the Traveling Pants","Gran Turismo","Archies","Family Switch","13 the musical","Secret Diary of an Exchange Student","Blackpink: Light up the sky","The Italian Job","Now You See Me","Logan Lucky","Theory of everything","Liar liar","Dumplin","500 days of summer","My Spy","One Piece: Baron Omatsuri and the Secret Island","Alien","Snatch","Mcfarland USA","9 to 5","Woman King","Bottle Shock","How I Met Your Mother","Flow","Scavengers Reign","Twilight of the Cockroaches", "we live in time"]
 //addMM(movies)
 */
 
