@@ -141,6 +141,9 @@ button{
     background-color: var(--clr-accent);
 }
 
+.list{
+    margin-bottom: 5vh;
+}
 
 .list.grid-view{
     display: flex;
@@ -202,6 +205,7 @@ button{
                 .rtrating-flex, .csrating-flex{
                     display: flex;
                     gap: 5px;
+                    margin-right: 5px;
                 }
                 .rtrating-logo, .csrating-logo{
                     width: 20px;
@@ -233,15 +237,15 @@ button{
 
     .movie {
         display: table-row-group;
+        background-color: var(--clr-bg);
+    }
+
+    .movie:nth-child(even){
+        background-color: var(--clr-primary);
     }
 
     .row{
         display:table-row;
-        background-color: var(--clr-bg);
-    }
-
-    .row:nth-child(even){
-        background-color: var(--clr-primary);
     }
 
     .row:not(.headers):hover {
@@ -251,7 +255,6 @@ button{
     .row *{
         display: table-cell;
         /*border: 1px solid #595959;*/
-        padding-right: max(20px,auto);
         padding: 5px 0 5px 0;
     }
 }

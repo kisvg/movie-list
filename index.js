@@ -442,6 +442,8 @@ function movieElement(movie) {
     poster = data.poster
   }
 
+  let ghost = {"rtrating": "", "csrating": ""}
+
   let gray = {}
   let markup = ``
   Object.keys(data).forEach(key => {
@@ -450,6 +452,10 @@ function movieElement(movie) {
     if(value==null || value=="N/A"){
       gray[key] = "grayscale "
       data[key] = "N/A"
+      // weird hack perhaps
+      if (Object.keys(ghost).includes(key)){
+        ghost[key] = "ghost"
+      }
     }
     else{
       if(key == "rtrating"){
@@ -477,17 +483,17 @@ function movieElement(movie) {
         <div class="info-flex">
           <div class = "rtrating-flex">
             <img class="${gray.rtrating}rtrating-logo" src="./images/rtrating.svg">
-            <p>${data.rtrating}</p>
+            <p class="${ghost.rtrating}">${data.rtrating}</p>
           </div>
           <div class = "csrating-flex">
             <img class="${gray.csrating}csrating-logo" src="./images/csrating.svg">
-            <p>${data.csrating}</p>
+            <p class="${ghost.csrating}">${data.csrating}</p>
           </div>
         </div>
       </div>
 
       <div class="row">
-        <p>${data.title}</p>
+        <h2>${data.title}</h2>
         ${markup}
       </div>
     </div>
