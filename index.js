@@ -1,12 +1,12 @@
 //#region firebase
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 import { 
   getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, 
   onSnapshot, 
   query, where, orderBy, limit, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj4WhOtO_5fuUK7xqEU8ZOAlYrVTOx8uA",
@@ -64,12 +64,16 @@ function addTriggers(){
   };
   //add movie
   document.getElementById('button-add-movie').onclick = function() {
-    addMovie(document.getElementById("input-add-movie").value)
+    addMovieByName(document.getElementById("input-add-movie").value)
   };
-  //if enter clicked in text box
-  document.getElementById('input-add-movie').addEventListener("keyup", function(event) {
+  // event.target.id
+  const debouncedHandleSuggestions = debounce(handleSuggestions, 300);
+  document.getElementById("input-add-movie").addEventListener('keyup', function(event){
     if (event.key === "Enter") {
-      addMovie(document.getElementById("input-add-movie").value)
+      addMovieByName(document.getElementById("input-add-movie").value)
+    }
+    else{
+      debouncedHandleSuggestions(event)
     }
   })
   //another thing
@@ -227,9 +231,84 @@ function randKey(service) {
   return (keyList[Math.floor(Math.random()*(keyList.length))])
 };
 
-async function addMovie(name) {
+function debounce(func, delay) {
+  let timer;
+  return function(...args) {
+    const context = this;
+    if(timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      func.apply(context, args);
+    }, delay);
+  }
+}
+
+globalThis.suggestions = []
+globalThis.goodTypes = ["tv","movie"]
+
+// make dropdown when search is typed in
+async function handleSuggestions(event){
+  let key = event.key
+  // key shouldn't be enter unless I change it later
+  if (!(key === 'ArrowDown' || key === 'ArrowUp' || key === 'Enter')){
+    let name = event.target.value
+    if (name == ""){
+      document.getElementById("suggestion-container").classList.remove("active")
+      return
+    }
+    try{
+      let initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&api_key="+randKey("tmdb"))
+      let data = initialdata.results
+      data = data.filter(item => globalThis.goodTypes.includes(item.media_type))
+      globalThis.suggestions = data
+      let markup = ``
+      data.forEach((item, id) => {
+        let imgSrc="./images/placeholder.png"
+        if (item.poster_path && typeof item.poster_path === "string"){
+          imgSrc = "https://image.tmdb.org/t/p/w300_and_h450_bestv2"+item.poster_path
+        }
+
+        let title
+        if (item.media_type == "tv"){
+          title = item.name
+        }
+        else{
+          title = item.title
+        }
+
+        markup += `
+          <div id="${id}" class = "suggestion">
+            <img id="${id}" class= "poster" src="${imgSrc}">
+            <p id="${id}">${title}</p>
+          </div>
+        `
+      })
+      if (markup == ""){
+        markup = `<p>No results.</p>`
+      }
+      document.getElementById("suggestion-container").innerHTML = markup
+
+      let elements = document.querySelectorAll(".suggestion")
+      elements.forEach(element => {
+        element.onclick = function(){
+          let id = this.id
+          let data = globalThis.suggestions[id]
+          addMovie(data)
+        }
+      })
+
+      // show it
+      document.getElementById("suggestion-container").classList.add("active")
+    }
+    catch(e){
+      console.error(e)
+    }
+  }
+}
+
+async function addMovie(data) {
   globalThis.newMovie = {};
-  await getInfo(name);
+  await getInfo(data);
   if (newMovie.title){
     await sendData("unwatched",newMovie);
     if (newMovie.type == "tv"){
@@ -239,6 +318,7 @@ async function addMovie(name) {
       displayNotification("Movie added: "+newMovie.title)
     }
     document.getElementById("input-add-movie").value = ""
+    document.getElementById("suggestion-container").classList.remove("active")
   }
   // if fetching it fails
   else{
@@ -246,8 +326,35 @@ async function addMovie(name) {
   }
 };
 
-async function getInfo(name) {
-  await getTmdb(name);
+
+
+async function addMovieByName(name){
+  try{
+    let initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&api_key="+randKey("tmdb"))
+    let data
+    let i = 0
+    while(true){
+      data = initialdata.results[i]
+      let type = data.media_type
+      // we don't want that infinite loop
+      if ((globalThis.goodTypes.includes(type))){
+        break
+      }
+      if (i > 20){
+        return
+      }
+      // console.log("woah, that's a "+type)
+      i+=1
+    }
+    addMovie(data)
+  }
+  catch(e){
+    console.error(e)
+  }
+}
+
+async function getInfo(data) {
+  await getTmdb(data);
   await getOmdb(newMovie);
 }
 
@@ -261,26 +368,12 @@ async function get(url){
 }
 
 // GET request
-async function getTmdb(name) {
+async function getTmdb(data) {
+  // data = initialdata.results[i]
   try{
-    let initialdata
-    let data
-    let type
-    let acceptable = ['movie','tv']
-    let i = 0
-    while(true){
-      initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&api_key="+randKey("tmdb"))
-      data = initialdata.results[i]
-      type = data.media_type
-      // we don't want that infinite loop
-      if ((acceptable.includes(type)) || (i > 20)){
-        break
-      }
-      console.log("woah, that's a "+type)
-      i+=1
-    }
-    console.log(data)
+    let type = data.media_type
     let tmdbid = data.id
+
     newMovie["tmdbid"] = tmdbid //n (displayed?)
     newMovie["type"] = type //n
     newMovie["timestamp"] = serverTimestamp(); //n 
@@ -293,10 +386,11 @@ async function getTmdb(name) {
     else{
       newMovie["poster"] = "./images/placeholder.png"
     }
-    initialdata = await get ("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
+    // to get imdb id
+    let initialdata = await get ("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
     newMovie["imdbid"] = initialdata.imdb_id //n
     // now for the streaming services
-    if (newMovie.type == "tv"){
+    if (type == "tv"){
       newMovie["title"] = data.name //y
     }
     else{

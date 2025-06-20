@@ -117,6 +117,36 @@ button{
     padding: 5px;
 }
 
+#suggestion-container{
+    display: none;
+    position: absolute;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 30vh;
+    background-color: var(--clr-bg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    padding-top: 5px;
+    padding-bottom: 5px;
+    .suggestion{
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        padding-left: 8px;
+        padding-right: 8px;
+        .poster{
+            width: min(40px,10vw);
+        }
+    }
+}
+
+#suggestion-container.active{
+    display: flex;
+}
+
 #save-service-list{
     margin-top: 5px;
 }

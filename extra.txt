@@ -88,3 +88,18 @@ if (docSnap.exists()) {
   console.log("No such document!");
 }
 */
+
+
+/*
+
+// globalThis.autocompleteResults = data
+      let markup
+      data.forEach((item,id) => {
+        markup += `
+          <div id="${id}">
+            <img id="${id}" src="">
+            <p id="${id}">${}</p>
+          </div>
+        `
+
+        */
