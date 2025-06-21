@@ -243,6 +243,15 @@ function debounce(func, delay) {
   }
 }
 
+async function get(url){
+  let response = await fetch(url)
+    if (!response.ok) {
+      throw new Error('Response was not ok');
+    }
+    let data = await response.json();
+    return data
+}
+
 globalThis.suggestions = []
 globalThis.goodTypes = ["tv","movie"]
 
@@ -306,28 +315,6 @@ async function handleSuggestions(event){
   }
 }
 
-async function addMovie(data) {
-  globalThis.newMovie = {};
-  await getInfo(data);
-  if (newMovie.title){
-    await sendData("unwatched",newMovie);
-    if (newMovie.type == "tv"){
-      displayNotification("Show added: "+newMovie.title)
-    }
-    else{
-      displayNotification("Movie added: "+newMovie.title)
-    }
-    document.getElementById("input-add-movie").value = ""
-    document.getElementById("suggestion-container").classList.remove("active")
-  }
-  // if fetching it fails
-  else{
-    displayNotification("Failed. Typo?",false)
-  }
-};
-
-
-
 async function addMovieByName(name){
   try{
     let initialdata = await get("https://api.themoviedb.org/3/search/multi?query="+name+"&api_key="+randKey("tmdb"))
@@ -353,21 +340,31 @@ async function addMovieByName(name){
   }
 }
 
+async function addMovie(data) {
+  globalThis.newMovie = {};
+  await getInfo(data);
+  if (newMovie.title){
+    await sendData("unwatched",newMovie);
+    if (newMovie.type == "tv"){
+      displayNotification("Show added: "+newMovie.title)
+    }
+    else{
+      displayNotification("Movie added: "+newMovie.title)
+    }
+    document.getElementById("input-add-movie").value = ""
+    document.getElementById("suggestion-container").classList.remove("active")
+  }
+  // if fetching it fails
+  else{
+    displayNotification("Failed. Typo?",false)
+  }
+};
+
 async function getInfo(data) {
   await getTmdb(data);
   await getOmdb(newMovie);
 }
 
-async function get(url){
-  let response = await fetch(url)
-    if (!response.ok) {
-      throw new Error('Response was not ok');
-    }
-    let data = await response.json();
-    return data
-}
-
-// GET request
 async function getTmdb(data) {
   // data = initialdata.results[i]
   try{
@@ -414,7 +411,7 @@ async function getTmdb(data) {
   }
 };
 
-// Make GET request for more general movie info
+// get more general movie info
 async function getOmdb(newMovie) {
   try{
     const response = await fetch("https://www.omdbapi.com/?i="+newMovie.imdbid+"&plot=full&apikey="+randKey("omdb"))
@@ -626,7 +623,6 @@ async function q(criteria, order = ''){
   });
   */
 }
-
 
 function generateChips(filters) {
   let html = ``;
@@ -976,7 +972,7 @@ async function saveChanges(){
 
 //#endregion
 
-
+//#region notifs
 
 const notification = document.getElementById("notification")
 
@@ -1002,6 +998,8 @@ function displayNotification(message, isGood = true, time = 5){
   }
 }
 
+//#endregion
+
 //#region etc
 
 // to transfer files from spreadsheet. extreme jank warning.
@@ -1010,7 +1008,7 @@ function displayNotification(message, isGood = true, time = 5){
 async function addMM(movies){
   for (const movie of movies) {
     if (!globalThis.a){
-      await addMovie(movie)}
+      await addMovieByName(movie)}
   };
 }
 
