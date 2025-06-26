@@ -94,6 +94,9 @@ function addTriggers(){
     await moveData("unwatched",globalThis.currentId,"watched")
     displayNotification("Marked as watched")
   }
+  document.getElementById("pop-update").onclick = function(){
+    updateCurrentMovie()
+  }
   //triggers for closing popup
   document.getElementById('close-pop').onclick = function() {closePop()};
   document.getElementById('pop-bg').onclick = function() {closePop()};
@@ -393,16 +396,12 @@ async function getTmdb(data) {
     else{
       newMovie["title"] = data.title //y
     }
-    initialdata = await get("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/watch/providers?api_key="+randKey("tmdb"))
-    data = initialdata.results.US?.flatrate;
-    var services = [];
-    //if there are any flatrates
-    if(data){
-      data.forEach(item => {
-        services.push(item.provider_name)
-      });
-    }
+    let services = await getServiceArray({
+      tmdbid: tmdbid,
+      type: type
+    })
     let services_lower = lowerArray(services)
+
     newMovie["services"] = services; //y
     newMovie["services_lower"] = services_lower //n
   }
@@ -410,6 +409,19 @@ async function getTmdb(data) {
     console.error(e);
   }
 };
+
+async function getServiceArray(info){
+  let initialdata = await get("https://api.themoviedb.org/3/"+info.type+"/"+info.tmdbid+"/watch/providers?api_key="+randKey("tmdb"))
+  let data = initialdata.results.US?.flatrate;
+  var services = [];
+  //if there are any flatrates
+  if(data){
+    data.forEach(item => {
+      services.push(item.provider_name)
+    });
+  }
+  return services
+}
 
 // get more general movie info
 async function getOmdb(newMovie) {
@@ -1004,6 +1016,46 @@ function displayNotification(message, isGood = true, time = 5){
 
 // to transfer files from spreadsheet. extreme jank warning.
 
+async function updateList(){
+  try{
+    let querySnapshot = await getDocs(unwatchedRef)
+    for (const docSnap of querySnapshot.docs) {
+      let ref = doc(db,"unwatched", doc.id)
+      let data = docSnap.data()
+      let services = await getServiceArray({
+        type: data.type,
+        tmdbid: data.tmdbid
+      })
+      await updateDoc(ref,{
+        services: services,
+        services_lower: lowerArray(services)
+      })
+    }
+  }
+  catch(e){
+    console.error(e)
+  }
+}
+
+async function updateCurrentMovie(){
+  try{
+    let currentMovieRef = doc(db, "unwatched", currentId)
+    let docSnap = await getDoc(currentMovieRef)
+    let data = docSnap.data()
+    let services = await getServiceArray({
+      type: data.type,
+      tmdbid: data.tmdbid
+    })
+    await updateDoc(currentMovieRef,{
+      services: services,
+      services_lower: lowerArray(services)
+    })
+  }
+  catch(e){
+    console.error(e)
+  }
+}
+
 /*
 async function addMM(movies){
   for (const movie of movies) {
@@ -1011,9 +1063,10 @@ async function addMM(movies){
       await addMovieByName(movie)}
   };
 }
-
-let movies = ["American Dreamer","Bambi","Battle of the Sexes","Better Nate Than Ever","Bourne","Boyhood","Bridge to Terabithia","Clueless","Deaf Mute Heroine","Enchanted","Fantasia","Gilmore Girls","Ginny & Georgia","The Diplomat","Hollywood Stargirl","Into the Night","Irresistible","James Bond ","Knight and Day","Life Animated","Lord of the Rings","Mission Impossible ","Nick & Noras Infinite Playlist","Nomadland","Passengers","Planet of the Apes","Pop Star","Rocks","Say Anything","See You Yesterday","Sex Education","Shake the Dust","Short Circuit","Song of the Sea","Spaceship Earth","Sword of the Stranger","Tar","Ted Lasso","Tekkonkinkreet","The Call of the Wild","The Duff","The Kissing Booth","The Sandlot","Three Amigos","Time Travelers Wife","To Kill a Mockingbird","Umbrella Academy","Waltz with Bashir","Whats so Bad About Feeling Good?","Where to Invade Next","White Fang","Winter Days","Rocks","Fantastic Fungi","El Chivo","Lost City","The Prince of Egypt","Promare","The Secret of Kells","Endless Summer","1000 Me","Americanish","Kundun","Tony Hawk","Miss Congeniality","Super 8","Brothers of the Wind","Tonight Youre Mine","Dancer in the Dark","China Blue","The Point of No Return","La Femme Nikita","Beef","Dog Gone","Casa de papel","Divergent ","Cyrano","Creed","Brigsby Bear","Map of Tiny Perfect Things","Fried Green Tomatoes","The Sisterhood of the Traveling Pants","Gran Turismo","Archies","Family Switch","13 the musical","Secret Diary of an Exchange Student","Blackpink: Light up the sky","The Italian Job","Now You See Me","Logan Lucky","Theory of everything","Liar liar","Dumplin","500 days of summer","My Spy","One Piece: Baron Omatsuri and the Secret Island","Alien","Snatch","Mcfarland USA","9 to 5","Woman King","Bottle Shock","How I Met Your Mother","Flow","Scavengers Reign","Twilight of the Cockroaches", "we live in time"]
-//addMM(movies)
 */
+
+// let movies = ["American Dreamer","Bambi","Battle of the Sexes","Better Nate Than Ever","Bourne","Boyhood","Bridge to Terabithia","Clueless","Deaf Mute Heroine","Enchanted","Fantasia","Gilmore Girls","Ginny & Georgia","The Diplomat","Hollywood Stargirl","Into the Night","Irresistible","James Bond ","Knight and Day","Life Animated","Lord of the Rings","Mission Impossible ","Nick & Noras Infinite Playlist","Nomadland","Passengers","Planet of the Apes","Pop Star","Rocks","Say Anything","See You Yesterday","Sex Education","Shake the Dust","Short Circuit","Song of the Sea","Spaceship Earth","Sword of the Stranger","Tar","Ted Lasso","Tekkonkinkreet","The Call of the Wild","The Duff","The Kissing Booth","The Sandlot","Three Amigos","Time Travelers Wife","To Kill a Mockingbird","Umbrella Academy","Waltz with Bashir","Whats so Bad About Feeling Good?","Where to Invade Next","White Fang","Winter Days","Rocks","Fantastic Fungi","El Chivo","Lost City","The Prince of Egypt","Promare","The Secret of Kells","Endless Summer","1000 Me","Americanish","Kundun","Tony Hawk","Miss Congeniality","Super 8","Brothers of the Wind","Tonight Youre Mine","Dancer in the Dark","China Blue","The Point of No Return","La Femme Nikita","Beef","Dog Gone","Casa de papel","Divergent ","Cyrano","Creed","Brigsby Bear","Map of Tiny Perfect Things","Fried Green Tomatoes","The Sisterhood of the Traveling Pants","Gran Turismo","Archies","Family Switch","13 the musical","Secret Diary of an Exchange Student","Blackpink: Light up the sky","The Italian Job","Now You See Me","Logan Lucky","Theory of everything","Liar liar","Dumplin","500 days of summer","My Spy","One Piece: Baron Omatsuri and the Secret Island","Alien","Snatch","Mcfarland USA","9 to 5","Woman King","Bottle Shock","How I Met Your Mother","Flow","Scavengers Reign","Twilight of the Cockroaches", "we live in time"]
+// addMM(movies)
+
 
 //#endregion
