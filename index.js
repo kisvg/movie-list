@@ -336,7 +336,7 @@ async function addMovieByName(name){
       // console.log("woah, that's a "+type)
       i+=1
     }
-    addMovie(data)
+    await addMovie(data)
   }
   catch(e){
     console.error(e)
@@ -1059,14 +1059,16 @@ async function updateCurrentMovie(){
 /*
 async function addMM(movies){
   for (const movie of movies) {
-    if (!globalThis.a){
-      await addMovieByName(movie)}
-  };
+    await addMovieByName(movie)}
 }
+
+
+let movies =[]
+
+addMM(movies)
 */
 
-// let movies = ["American Dreamer","Bambi","Battle of the Sexes","Better Nate Than Ever","Bourne","Boyhood","Bridge to Terabithia","Clueless","Deaf Mute Heroine","Enchanted","Fantasia","Gilmore Girls","Ginny & Georgia","The Diplomat","Hollywood Stargirl","Into the Night","Irresistible","James Bond ","Knight and Day","Life Animated","Lord of the Rings","Mission Impossible ","Nick & Noras Infinite Playlist","Nomadland","Passengers","Planet of the Apes","Pop Star","Rocks","Say Anything","See You Yesterday","Sex Education","Shake the Dust","Short Circuit","Song of the Sea","Spaceship Earth","Sword of the Stranger","Tar","Ted Lasso","Tekkonkinkreet","The Call of the Wild","The Duff","The Kissing Booth","The Sandlot","Three Amigos","Time Travelers Wife","To Kill a Mockingbird","Umbrella Academy","Waltz with Bashir","Whats so Bad About Feeling Good?","Where to Invade Next","White Fang","Winter Days","Rocks","Fantastic Fungi","El Chivo","Lost City","The Prince of Egypt","Promare","The Secret of Kells","Endless Summer","1000 Me","Americanish","Kundun","Tony Hawk","Miss Congeniality","Super 8","Brothers of the Wind","Tonight Youre Mine","Dancer in the Dark","China Blue","The Point of No Return","La Femme Nikita","Beef","Dog Gone","Casa de papel","Divergent ","Cyrano","Creed","Brigsby Bear","Map of Tiny Perfect Things","Fried Green Tomatoes","The Sisterhood of the Traveling Pants","Gran Turismo","Archies","Family Switch","13 the musical","Secret Diary of an Exchange Student","Blackpink: Light up the sky","The Italian Job","Now You See Me","Logan Lucky","Theory of everything","Liar liar","Dumplin","500 days of summer","My Spy","One Piece: Baron Omatsuri and the Secret Island","Alien","Snatch","Mcfarland USA","9 to 5","Woman King","Bottle Shock","How I Met Your Mother","Flow","Scavengers Reign","Twilight of the Cockroaches", "we live in time"]
-// addMM(movies)
+// if (!globalThis.a){
 
 
 //#endregion
