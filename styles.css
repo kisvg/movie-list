@@ -93,7 +93,6 @@ button{
 
 .grayscale{
     filter:contrast(30%) grayscale(1);
-    /*-webkit-filter: grayscale(1);*/
 }
 
 /*
@@ -232,13 +231,16 @@ button{
                 display: flex;
                 justify-content: space-between;
 
-                .rtrating-flex, .csrating-flex{
+                .rtrating-flex, .rated-flex{
                     display: flex;
                     gap: 5px;
                     margin-right: 5px;
                 }
-                .rtrating-logo, .csrating-logo{
+                .rtrating-logo, .rated-logo{
                     width: 20px;
+                }
+                .rated-logo{
+                    filter: brightness(0) invert(1);
                 }
             }
         }
@@ -487,27 +489,23 @@ button{
             width: 100%;
         }
 
-        #pop-rtrating-grid, #pop-csrating-grid{
+        #pop-rtrating-grid, #pop-rated-grid{
             display: grid;
             grid-template-columns: 30px auto;
             gap: 5px;
             align-items: center;
         }
 
-        #pop-rtlogo, #pop-cslogo{
+        #pop-rtlogo, #pop-ratedlogo{
             grid-column: 1;
             width: 100%
         }
 
-        #pop-csrating{
-            width: 30px;
-            height: 30px;
-            text-align: center;
-            margin-top: 5px;
-            margin-bottom: 15px;
+        #pop-ratedlogo{
+            filter: brightness(0) invert(1);
         }
 
-        #pop-rtrating{
+        #pop-rtrating, #pop-rated{
             margin-top: 5px;
             margin-bottom: 15px;
         }

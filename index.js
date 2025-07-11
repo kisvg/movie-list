@@ -3,7 +3,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 import { 
-  getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, 
+  getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, deleteField,
   onSnapshot, 
   query, where, orderBy, limit, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -193,6 +193,10 @@ async function moveData(root, id, destination){
 
 //#region lists
 
+// get api keys here 
+// https://omdbapi.com/apikey.aspx
+// TODO: add tmdb link maybe
+
 const omdbKeys = [
   "f58b2e26",
   "98d95a3b",
@@ -368,6 +372,7 @@ async function getInfo(data) {
   await getOmdb(newMovie);
 }
 
+// from this I could also get genres (it contains genre ids) and release date
 async function getTmdb(data) {
   // data = initialdata.results[i]
   try{
@@ -378,18 +383,18 @@ async function getTmdb(data) {
     newMovie["type"] = type //n
     newMovie["timestamp"] = serverTimestamp(); //n 
     newMovie["plot"] = data.overview //y
-    newMovie["csrating"] = null; //y
     newMovie["notes"] = "" //y
+
     if (data.poster_path && typeof data.poster_path === "string"){
       newMovie["poster"] = "https://image.tmdb.org/t/p/w300_and_h450_bestv2"+data.poster_path //y
     }
     else{
       newMovie["poster"] = "./images/placeholder.png"
     }
-    // to get imdb id
+    // get imdb id
     let initialdata = await get ("https://api.themoviedb.org/3/"+type+"/"+tmdbid+"/external_ids?api_key="+randKey("tmdb"))
     newMovie["imdbid"] = initialdata.imdb_id //n
-    // now for the streaming services
+    // get streaming services
     if (type == "tv"){
       newMovie["title"] = data.name //y
     }
@@ -426,6 +431,7 @@ async function getServiceArray(info){
 // get more general movie info
 async function getOmdb(newMovie) {
   try{
+    // remove "&plot=full" to get a more concise plot
     const response = await fetch("https://www.omdbapi.com/?i="+newMovie.imdbid+"&plot=full&apikey="+randKey("omdb"))
     if (!response.ok) {
       throw new Error('Response was not ok');
@@ -435,6 +441,7 @@ async function getOmdb(newMovie) {
     newMovie["runtime"] = data.Runtime; //n
     newMovie["year"] = data.Year; //y
     newMovie["releasedate"] = data.Released; //n
+    newMovie["rated"] = data.Rated
     // genres
     let genres = []
     if (data.Genre){
@@ -493,14 +500,30 @@ const filters = [
       '':"==",
     },
     value_type:{
-      'movies':"movie",
+      'movies': "movie",
       'shows': "tv"},
   },
   {
-    name: "CSM rating",
-    key: "csrating",
-    operators: math_operators,
-    value_type:"input"
+    name: "Rated",
+    key: "rated",
+        operators:{
+      '':"==",
+    },
+    value_type:{
+      //'': "N/A",
+      //'': "Not Rated",
+      'Appr.': "Approved",
+      'G': "G",
+
+      'PG': "PG",
+      'PG-13': "PG-13",
+      'R': "R",
+
+      'TV-G': "TV-G",
+      'TV-PG': "TV-PG",
+      'TV-14': "TV-14",
+      'TV-<A': "TV-MA",
+    },
   },
   {
     name:"genre",
@@ -526,7 +549,7 @@ var table_columns = {
   // timestamp shows up funny because firebase
   timestamp:{header:"Time Added", display:false},
   rtrating:{header:"Rotten Tomatoes", display:true},
-  csrating:{header:"CSM Rating", display:true},
+  rated:{header:"Rated", display:true},
   runtime:{header:"Length", display:true},
   // either "movie" or "tv"
   type:{header:"Type", display:false},
@@ -545,7 +568,7 @@ function movieElement(movie) {
     poster = data.poster
   }
 
-  let ghost = {"rtrating": "", "csrating": ""}
+let ghost = {"rtrating": "", "rated": ""}
 
   let gray = {}
   let markup = ``
@@ -588,9 +611,9 @@ function movieElement(movie) {
             <img class="${gray.rtrating}rtrating-logo" src="./images/rtrating.svg">
             <p class="${ghost.rtrating}">${data.rtrating}</p>
           </div>
-          <div class = "csrating-flex">
-            <img class="${gray.csrating}csrating-logo" src="./images/csrating.svg">
-            <p class="${ghost.csrating}">${data.csrating}</p>
+          <div class = "rated-flex">
+            <img class="${gray.rated}rated-logo" src="./images/rated.svg">
+            <p class="${ghost.rated}">${data.rated}</p>
           </div>
         </div>
       </div>
@@ -846,7 +869,7 @@ function orderDisplay(unwatched){
 function orderMovies(a,b){
   let order = document.getElementById("order").value
   let reverseOrder = globalThis.reverseOrder
-  let autoSwapList = ["timestamp","rtrating","csrating","year"]
+  let autoSwapList = ["timestamp","rtrating","year"]
   if (autoSwapList.includes(order)){
     reverseOrder = !reverseOrder
   }
@@ -901,6 +924,7 @@ async function openPop(movieId) {
     document.getElementById("pop-title").innerHTML=data.title
     document.getElementById("pop-plot").innerHTML=data.plot
     document.getElementById("pop-year").innerHTML=data.year
+    document.getElementById("pop-rated").innerHTML=data.rated
     let rtrating = data.rtrating
     if (rtrating==undefined){
       rtrating = "N/A"
@@ -917,9 +941,8 @@ async function openPop(movieId) {
       poster = data.poster
     }
     document.getElementById("pop-poster").src=poster
-    //inputs
+    //input(s)
     document.getElementById("pop-notes").value=data.notes
-    document.getElementById("pop-csrating").value=data.csrating
     //console.log(data.services)
     try{
       if(data.services.length == 0){
@@ -960,22 +983,9 @@ async function closePop() {
 }
 
 async function saveChanges(){
-  if (document.getElementById("pop-csrating").value != ""){
-    try{
-    var csrating = Number(document.getElementById("pop-csrating").value)
-    }
-    catch(e){
-      console.log("Error: number not inputted ", e)
-    }
-  }
-  else{
-    var csrating = null
-  }
   var notes = document.getElementById("pop-notes").value
-  //console.log(csrating, notes)
   var currentMovieRef = doc(db, "unwatched", currentId)
   await updateDoc(currentMovieRef, {
-    csrating: csrating,
     notes: notes,
   })
   globalThis.currentId = null
@@ -1019,9 +1029,9 @@ function displayNotification(message, isGood = true, time = 5){
 async function updateList(){
   try{
     let querySnapshot = await getDocs(unwatchedRef)
-    for (const docSnap of querySnapshot.docs) {
+    for (let doc of querySnapshot.docs) {
       let ref = doc(db,"unwatched", doc.id)
-      let data = docSnap.data()
+      let data = doc.data()
       let services = await getServiceArray({
         type: data.type,
         tmdbid: data.tmdbid
@@ -1056,12 +1066,39 @@ async function updateCurrentMovie(){
   }
 }
 
+//#endregion
+
+//#region dev
+
+/*
+async function devUpdateList(){
+  try{
+    let querySnapshot = await getDocs(unwatchedRef)
+    for (let docSnap of querySnapshot.docs) {
+      try{
+      let ref = doc(db,"unwatched", docSnap.id)
+      let data = docSnap.data()
+      await updateDoc(ref,{
+        //a: deleteField(),
+        //rated: "R"
+      })
+    }
+    catch(e){
+      console.error(e)
+    }
+    }
+  }
+  catch(e){
+    console.error(e)
+  }
+}
+*/
+
 /*
 async function addMM(movies){
   for (const movie of movies) {
     await addMovieByName(movie)}
 }
-
 
 let movies =[]
 

@@ -51,7 +51,7 @@
                     <select name="order" id="order">
                         <option value="timestamp">Time added</option>
                         <option value="rtrating">Rotten Tomatoes</option>
-                        <option value="csrating">Common Sense</option>
+                        <option value="rated">Rated</option>
                         <option value="year">Release date</option>
                         <option value="title">Alphabetical</option>
                     </select>
@@ -90,11 +90,11 @@
                             <h3>Rotten Tomatoes </h3>
                         </div>
                         <p id="pop-rtrating"></p>
-                        <div id="pop-csrating-grid">
-                            <img id="pop-cslogo" src="./images/csrating.svg">
-                            <h3>Common Sense Rating </h3>
+                        <div id="pop-rated-grid">
+                            <img id="pop-ratedlogo" src="./images/rated.svg">
+                            <h3>Rated </h3>
                         </div>
-                        <input id="pop-csrating" placeholder="add"></input>
+                        <p id="pop-rated"></p>
                     </div>
                 </div>
                 <!--elements of popup content outside of grid-->
@@ -103,7 +103,7 @@
                 <h3>Notes </h3>
                 <textarea id="pop-notes"></textarea>
                 <div id="pop-footer">
-                    <p class="ghost">Streaming services don't look right?</p>
+                    <p class="ghost">Streaming services don't look right here?</p>
                     <button id="pop-update">Update services</button>
                 </div>
             </div>
