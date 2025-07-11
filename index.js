@@ -441,7 +441,12 @@ async function getOmdb(newMovie) {
     newMovie["runtime"] = data.Runtime; //n
     newMovie["year"] = data.Year; //y
     newMovie["releasedate"] = data.Released; //n
-    newMovie["rated"] = data.Rated
+    //rated
+    let rated = data.Rated
+    if (rated == "Unrated" || rated == "Not Rated"){
+      rated = "N/A"
+    }
+    newMovie["rated"] = rated //y
     // genres
     let genres = []
     if (data.Genre){
@@ -504,17 +509,15 @@ const filters = [
       'shows': "tv"},
   },
   {
-    name: "Rated",
+    name: "rated",
     key: "rated",
-        operators:{
+    operators:{
       '':"==",
     },
     value_type:{
-      //'': "N/A",
-      //'': "Not Rated",
-      'Appr.': "Approved",
+      //TODO: make this a checklist
+      'Approved': "Approved",
       'G': "G",
-
       'PG': "PG",
       'PG-13': "PG-13",
       'R': "R",
@@ -522,7 +525,7 @@ const filters = [
       'TV-G': "TV-G",
       'TV-PG': "TV-PG",
       'TV-14': "TV-14",
-      'TV-<A': "TV-MA",
+      'TV-MA': "TV-MA",
     },
   },
   {
@@ -778,8 +781,15 @@ async function applyFilters(){
       }
       if(isNaN(Number(document.getElementById(`chip-value-${key}`).value))){
         // if it is a string
-        var value = document.getElementById(`chip-value-${key}`).value.toLowerCase()
-        // makes all inputs received as lowercase
+
+        // TODO: make this a checklist instead to avoid this jank
+        if (key == "rated"){
+          var value = document.getElementById(`chip-value-${key}`).value
+        }
+        else{
+          var value = document.getElementById(`chip-value-${key}`).value.toLowerCase()
+          // makes all inputs received as lowercase
+        }
       }
       else{
         // if it is a number
@@ -1078,9 +1088,9 @@ async function devUpdateList(){
       try{
       let ref = doc(db,"unwatched", docSnap.id)
       let data = docSnap.data()
+      if (data.rated== "Unrated" || data.rated == "Not Rated")
       await updateDoc(ref,{
-        //a: deleteField(),
-        //rated: "R"
+        rated: "N/A"
       })
     }
     catch(e){
@@ -1092,6 +1102,8 @@ async function devUpdateList(){
     console.error(e)
   }
 }
+
+devUpdateList()
 */
 
 /*

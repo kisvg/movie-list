@@ -91,10 +91,6 @@ button{
     display:none;
 }
 
-.grayscale{
-    filter:contrast(30%) grayscale(1);
-}
-
 /*
 ::placeholder{
     text-align: center;
@@ -239,8 +235,15 @@ button{
                 .rtrating-logo, .rated-logo{
                     width: 20px;
                 }
+                .rtrating-logo.grayscale{
+                    filter:contrast(30%) grayscale(1);
+                }
                 .rated-logo{
+                    /* make white */
                     filter: brightness(0) invert(1);
+                }
+                .rated-logo.grayscale{
+                    filter: contrast(0) brightness(70%);
                 }
             }
         }
