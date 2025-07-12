@@ -11,24 +11,15 @@
         <div id="body-header">
             <input type="text" id="input-add-movie" placeholder="Movie/show name">
             <button id="button-add-movie">Add</button>
-            <div id="suggestion-container">
-                <!--
-                <div id="">
-                    <img id="" src="">
-                    <p id=""></p>
-                </div>
-                -->
-            </div>
+            <div id="suggestion-container"></div>
 
-            <!--service list-->
             <button id="edit-services">Edit services</button>
-            <div id="service-list-container" class="service-list-container">
+            <div id="popup-service" class="popup">
                 <p>Check the services we are subscribed to</p>
-                <div id="service-list">
-                    <!--service list here-->
-                </div>
+                <div id="service-list"></div>
                 <button id="save-service-list">Save</button>
             </div>
+            <datalist id="service-suggestions"></datalist>
             
             <!-- Buttons to choose list or grid view -->
             <div id="view-container">
@@ -41,10 +32,9 @@
             </div>
 
             <!-- filter system -->
-            <div class="chip-container" id="chip-container">
-            </div>
+            <div class="chip-container" id="chip-container"></div>
 
-            <div id="last-header-row">
+            <div id="last-body-header-row">
                 <button id="apply-filters">Filter</button>
                 <div id="order-container">
                     <label for="order">Order by</label>
@@ -65,11 +55,10 @@
         </div>
 
         <!--popup stuff-->
-        <div class="loading" id="loading"></div>
-        <div class="pop-bg" id="pop-bg"></div>
-        <div id="popup" class="popup">
+        <div id="pop-bg"></div>
+        <div id="popup-movie" class="popup">
             <div class="pop-content" id="pop-content">
-                <span id="close-pop" class="close-pop">&times;</span>
+                <span id="pop-close" class="pop-close">&times;</span>
                 <!-- or I could put this in c2 -->
                 <button id="mark-watched">Mark as watched</button>
                 <div id="pop-title-row">

@@ -1,8 +1,9 @@
 // renders service list
 
-import  {saveServiceList} from "./index.js"
+import * as index from "./index.js"
 
 export async function renderServiceList(service_list){
+  getServiceSuggestions()
   var html = ``
   Object.keys(service_list).forEach(service=>{
     if(service_list[service]){
@@ -10,7 +11,7 @@ export async function renderServiceList(service_list){
       html +=  `
         <div class="service-item">
           <input type="checkbox" checked="true" />
-          <input type="text" class="service-input" placeholder="Enter streaming service" value="${service}"></input>
+          <input list="service-suggestions" class="service-input" placeholder="Enter streaming service" value="${service}"></input>
         </div>
       `
     }
@@ -19,7 +20,7 @@ export async function renderServiceList(service_list){
       html +=  `
         <div class="service-item">
           <input type="checkbox" />
-          <input type="text" class="service-input" placeholder="Enter streaming service" value="${service}"></input>
+          <input list="service-suggestions" class="service-input" placeholder="Enter streaming service" value="${service}"></input>
         </div>
       `
     }
@@ -28,13 +29,38 @@ export async function renderServiceList(service_list){
   html +=`
     <div class="service-item">
       <input type="checkbox" id="service-checkbox-last"/>
-      <input type="text" class="service-input" placeholder="Enter streaming service" id="service-input-last"></input>
+      <input list="service-suggestions" class="service-input" placeholder="Enter streaming service" id="service-input-last"></input>
     </div>
   `
   document.getElementById("service-list").innerHTML = html
+  document.getElementById('popup-service').classList.add("active")
+  document.getElementById("pop-bg").classList.add('active');
   document.getElementById('service-input-last').addEventListener("keyup", handleNewServiceInput)
-
   addListeners()
+}
+
+export async function getServiceSuggestions(){
+  let html = ``
+  //movies
+  let initialdata = await index.get(`https://api.themoviedb.org/3/watch/providers/movie?api_key=`+index.randKey("tmdb"))
+  let data = initialdata.results
+  let movies = []
+  data.forEach(item=>{
+    movies.push(item.provider_name)
+  })
+  //shows
+  initialdata = await index.get(`https://api.themoviedb.org/3/watch/providers/movie?api_key=`+index.randKey("tmdb"))
+  data = initialdata.results
+  let shows = []
+  data.forEach(item=>{
+    shows.push(item.provider_name)
+  })
+  // merge them without duplicates
+  let services = [...new Set([...movies, ...shows])]
+  services.forEach(service_name => {
+    html += `<option value="${service_name}">`
+  })
+  document.getElementById("service-suggestions").innerHTML = html
 }
 
 // handles keyup on last service input
@@ -59,7 +85,7 @@ export function addListeners(){
         if (event.key === "Enter" && input_element.value !== ""){
           //check the box next to it
           checkbox_element.checked = true
-          saveServiceList(getServiceList())
+          index.saveServiceList(getServiceList())
         }
         // removes item if service input is blank
         else if (input_element.value === "" && input_element.id !== "service-input-last"){
@@ -70,7 +96,7 @@ export function addListeners(){
 
       // manual check toggle => update list
       checkbox_element.addEventListener("change", function(event){
-          saveServiceList(getServiceList())
+          index.saveServiceList(getServiceList())
       })
 
     }// end if no event listeners attatched
@@ -81,8 +107,8 @@ export function addListeners(){
 export function updateServiceList(){
   document.getElementById('service-list').insertAdjacentHTML("beforeend", `
       <div class="service-item">
-      <input type="checkbox" class="checkbox"/>
-      <input type="text" class="service-input" placeholder="Enter streaming service" id="service-input-last-placeholder"></input>
+        <input type="checkbox" class="checkbox"/>
+        <input list="service-suggestions" class="service-input" placeholder="Enter streaming service" id="service-input-last-placeholder"></input>
       </div>
   `)
 

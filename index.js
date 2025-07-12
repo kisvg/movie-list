@@ -31,11 +31,12 @@ const watchedRef = collection(db, "watched")
 
 import * as service_list from './service_list.js'
 
-async function main(){
+// html loaded
+window.addEventListener('DOMContentLoaded', async function(){
   addTriggers()
   await loadServiceList()
   globalThis.reverseOrder = false
-}
+})
 
 function addTriggers(){
   // grid / list ui
@@ -55,13 +56,19 @@ function addTriggers(){
   }
   //services
   document.getElementById('edit-services').onclick = function(){
-    document.getElementById('service-list-container').classList.add('active')
+    service_list.renderServiceList(globalThis.serviceList)
   }
   document.getElementById("save-service-list").onclick = async function(){
-    await saveServiceList(service_list.getServiceList())
-    displayNotification("Service list saved")
-    document.getElementById('service-list-container').classList.remove('active')
-  };
+    document.getElementById('popup-service').classList.remove('active')
+    document.getElementById("pop-bg").classList.remove('active');
+    try{
+      await saveServiceList(service_list.getServiceList())
+      displayNotification("Service list saved")
+    }
+    catch(e){
+      displayNotification("Saving service list failed. Try again.")
+    }
+  }
   //add movie
   document.getElementById('button-add-movie').onclick = function() {
     addMovieByName(document.getElementById("input-add-movie").value)
@@ -98,8 +105,13 @@ function addTriggers(){
     updateCurrentMovie()
   }
   //triggers for closing popup
-  document.getElementById('close-pop').onclick = function() {closePop()};
-  document.getElementById('pop-bg').onclick = function() {closePop()};
+  document.getElementById('pop-close').onclick = function() {closePop()};
+  document.getElementById('pop-bg').onclick = function() {
+    // close popup if it's the movie popup
+    if (document.getElementById('popup-movie').classList.contains('active')){
+      closePop()
+    }
+  };
 
   // there's a question as to whether we should make the triggers for closePop have an await, which would mean
   // a waterfall of async functions
@@ -121,13 +133,10 @@ async function loadServiceList(){
     acc[key] = unordered[key];
     return acc;
   }, {})
-  service_list.renderServiceList(serviceList)
   if (globalThis.doServiceFilter){
     applyFilters()
   }
 }
-
-main()
 
 function lowerArray(array){
   return array.map(item => item.toLowerCase())
@@ -225,7 +234,7 @@ const wmKeys = [
 
 //#region adding movies
 
-function randKey(service) {
+export function randKey(service) {
   if (service == "omdb") {
     var keyList = omdbKeys
   }
@@ -250,7 +259,7 @@ function debounce(func, delay) {
   }
 }
 
-async function get(url){
+export async function get(url){
   let response = await fetch(url)
     if (!response.ok) {
       throw new Error('Response was not ok');
@@ -701,6 +710,7 @@ function generateChips(filters) {
       valueHtml = `<input class="chip-value" type="text" id="chip-value-${filter.key}">`;
     }
     else{
+      // dropdown
       valueHtml = `
       <select class="chip-value" id="chip-value-${filter.key}">
         ${Object.entries(filter.value_type)
@@ -734,8 +744,11 @@ function generateChips(filters) {
   globalThis.doServiceFilter = true
   document.getElementById(`chip-services`).classList.toggle('active')
   
-  //listen for change between movie and show
+  // listen for change in dropdowns
   document.getElementById("chip-value-type").addEventListener("change", function(event) {
+    applyFilters()
+  })
+  document.getElementById("chip-value-rated").addEventListener("change", function(event) {
     applyFilters()
   })
 
@@ -758,8 +771,14 @@ function toggleFilter(key){
   document.getElementById(`chip-${key}`).classList.toggle('active');
   //toggle contents shown
   document.getElementById(`chip-contents-${key}`).classList.toggle('active');
+
+  // for chips without an input
   if(key == 'services'){
     globalThis.doServiceFilter = !doServiceFilter
+    applyFilters();
+  }
+  // if it was just deactivated (no longer active)
+  else if(!(document.getElementById(`chip-${key}`).classList.contains('active'))){
     applyFilters();
   }
 }
@@ -920,9 +939,9 @@ generateChips(filters);
 
 //#region popups
 
-// Function to open the popup
+// Function to open the movie popup
 async function openPop(movieId) {
-  document.getElementById("popup").classList.add('active');
+  document.getElementById("popup-movie").classList.add('active');
   document.getElementById("pop-bg").classList.add('active');
   //get data
   const docRef = doc(db, "unwatched", movieId);
@@ -984,12 +1003,18 @@ async function openPop(movieId) {
 
 // Function to close the popup
 async function closePop() {
-  document.getElementById("popup").classList.remove('active');
-  document.getElementById("pop-bg").classList.remove('active');
-  document.getElementById("pop-content").classList.remove('active');
-  //allow scrolling on body
-  document.body.classList.remove('no-scroll');
-  await saveChanges();
+  //TODO: make this not disappear and throw errors for other popups
+  try{
+    saveChanges();
+    document.getElementById("popup-movie").classList.remove('active');
+    document.getElementById("pop-content").classList.remove('active');
+    document.getElementById("pop-bg").classList.remove('active');
+    //allow scrolling on body
+    document.body.classList.remove('no-scroll');
+  }
+  catch(e){
+    // it's fine
+  }
 }
 
 async function saveChanges(){
@@ -1008,7 +1033,7 @@ async function saveChanges(){
 
 const notification = document.getElementById("notification")
 
-function displayNotification(message, isGood = true, time = 5){
+export function displayNotification(message, isGood = true, time = 5){
   time*=1000
   if (isGood){
    notification.style.backgroundColor = 'lightgreen'

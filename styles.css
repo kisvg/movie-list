@@ -63,6 +63,7 @@ select{
 
 input{
     background-color: var(--clr-bg);
+    
 }
 
 textarea {
@@ -296,7 +297,7 @@ button{
 
 /*#region filters */
 
-#last-header-row{
+#last-body-header-row{
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -308,14 +309,6 @@ button{
 
 #apply-filters{
     margin: 0;
-}
-
-.service-list-container{
-    display:none;
-}
-
-.service-list-container.active{
-    display: block;
 }
 
 .chip-container {
@@ -393,30 +386,51 @@ button{
 
 /*#endregion filters*/
 
-/*#region popup*/
+/*#region popups*/
 
 .popup{
     position: fixed;
+    /* center */
     left: 0;
     right: 0;
     margin: auto;
-    width: 75%;
+
+    width: 60%;
+    height: 40%;
+
     background: var(--clr-bg);
-    padding: 20px;
     z-index: 2;
-    height: 95%; /* coordinate this with top */
     overflow-y: auto;
+    padding: 20px;
+    border-radius: 10px;
     box-shadow: 0 0 32px rgba(0, 0, 0, 0.9);
+    visibility: hidden;
+}
+
+.popup.active{
+    visibility: visible; 
+}
+
+#popup-service{
+    top: 0;
+    bottom: 0;
+}
+
+#popup-movie{
+    width: 75%;
+    height: 95%; /* coordinate this with top */
     border-radius: 10px 10px 0 0; /* only top right and top left corners */
 
-    visibility: hidden;
     top:100%;
     transition: all 0.15s ease; 
 
+    .pop-content.active{
+        visibility: visible;
+    }
     .pop-content {
     visibility: hidden;
 
-        #close-pop{
+        #pop-close{
             cursor: pointer;
             font-size: 20px;
             padding: 20px;
@@ -534,22 +548,16 @@ button{
             align-items: center;
         }
     }
-
-    .pop-content.active{
-        visibility: visible;
-    }
 }
 
-.popup.active{
-    visibility: visible; 
-
+#popup-movie.active{
     top: 5%;
     transition: all 0.3s ease; 
 }
 
 
 
-.pop-bg {
+#pop-bg {
     visibility: hidden;
     
     position: fixed;
@@ -565,7 +573,7 @@ button{
 }
 
 
-.pop-bg.active{
+#pop-bg.active{
     visibility: visible;
     
     opacity: 100%;
@@ -601,12 +609,12 @@ button{
 }
 
 @media /*only screen and*/ (width <= 500px) {
-    .popup{
+    #popup-movie{
         width: 100%;
         height: 100%;
         box-sizing: border-box;
     }
-    .popup.active{
+    #popup-movie.active{
         top:0;
     }
     .list.grid-view{
