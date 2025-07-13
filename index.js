@@ -4,8 +4,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebas
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-analytics.js";
 import { 
   getFirestore, collection, getDocs, getDoc, addDoc, setDoc, deleteDoc, updateDoc, doc, deleteField,
-  onSnapshot, 
-  query, where, orderBy, limit, serverTimestamp
+  query, where, 
+  onSnapshot, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -31,10 +31,12 @@ const watchedRef = collection(db, "watched")
 
 import * as service_list from './service_list.js'
 
-// html loaded
-window.addEventListener('DOMContentLoaded', async function(){
+// make sure html loaded
+window.addEventListener('DOMContentLoaded', function(){
   addTriggers()
-  await loadServiceList()
+  loadServiceList()
+  generateChips(filters);
+  preferences()
   globalThis.reverseOrder = false
 })
 
@@ -71,9 +73,11 @@ function addTriggers(){
   }
   //add movie
   document.getElementById('button-add-movie').onclick = function() {
-    addMovieByName(document.getElementById("input-add-movie").value)
+    if(document.getElementById("input-add-movie").value != ""){
+      // if it isn't blank
+      addMovieByName(document.getElementById("input-add-movie").value)
+    }
   };
-  // event.target.id
   const debouncedHandleSuggestions = debounce(handleSuggestions, 300);
   document.getElementById("input-add-movie").addEventListener('keyup', function(event){
     if (event.key === "Enter") {
@@ -83,9 +87,8 @@ function addTriggers(){
       debouncedHandleSuggestions(event)
     }
   })
-  //another thing
   document.getElementById('apply-filters').onclick = function() {applyFilters()};
-  //order
+  // order
   document.getElementById("order").addEventListener("change", function(event) {
     globalThis.reverseOrder = false
     document.getElementById("reverse-order").classList.remove("active")
@@ -96,7 +99,7 @@ function addTriggers(){
     document.getElementById("reverse-order").classList.toggle("active")
     applyFilters()
   }
-  //popup
+  // movie popup
   document.getElementById("mark-watched").onclick = async function(){
     await moveData("unwatched",globalThis.currentId,"watched")
     displayNotification("Marked as watched")
@@ -104,17 +107,14 @@ function addTriggers(){
   document.getElementById("pop-update").onclick = function(){
     updateCurrentMovie()
   }
-  //triggers for closing popup
+  // triggers for closing movie popup
   document.getElementById('pop-close').onclick = function() {closePop()};
   document.getElementById('pop-bg').onclick = function() {
     // close popup if it's the movie popup
     if (document.getElementById('popup-movie').classList.contains('active')){
       closePop()
     }
-  };
-
-  // there's a question as to whether we should make the triggers for closePop have an await, which would mean
-  // a waterfall of async functions
+  }
 }
 
 async function loadServiceList(){
@@ -138,6 +138,18 @@ async function loadServiceList(){
   }
 }
 
+function preferences(){
+  // TODO(?): change default based on user preference
+  if (window.innerWidth > 500){
+    document.getElementById("list").classList.add("list-view");
+    document.getElementById("button-list").classList.add("active");
+  }
+  else{
+    document.getElementById("list").classList.add("grid-view");
+    document.getElementById("button-grid").classList.add("active");
+  }
+}
+
 function lowerArray(array){
   return array.map(item => item.toLowerCase())
 }
@@ -153,16 +165,6 @@ export async function saveServiceList(serviceList){
   //apply filters now that services are updated
   applyFilters()
   await setDoc(doc(db,"cloud","services"),serviceList)
-}
-
-// TODO(?): change default based on user preference
-if (window.innerWidth > 500){
-  document.getElementById("list").classList.add("list-view");
-  document.getElementById("button-list").classList.add("active");
-}
-else{
-  document.getElementById("list").classList.add("grid-view");
-  document.getElementById("button-grid").classList.add("active");
 }
 
 //#region managing data
@@ -933,8 +935,6 @@ const update = onSnapshot(unwatchedRef, (querySnapshot) => {
   }
 });
 
-generateChips(filters);
-
 //#endregion
 
 //#region popups
@@ -1026,7 +1026,6 @@ async function saveChanges(){
   globalThis.currentId = null
 }
 
-
 //#endregion
 
 //#region notifs
@@ -1057,9 +1056,7 @@ export function displayNotification(message, isGood = true, time = 5){
 
 //#endregion
 
-//#region etc
-
-// to transfer files from spreadsheet. extreme jank warning.
+//#region updating
 
 async function updateList(){
   try{

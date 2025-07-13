@@ -76,7 +76,6 @@ button{
     cursor: pointer;
     background-color: var(--clr-primary);
     border-radius: 5px;
-    margin: 5px;
     padding: 6px;
 }
 
@@ -99,76 +98,161 @@ button{
 */
 /*#endregion theme */
 
+
+
+
 #body-header{
     margin-bottom: 5px;
-}
 
-.movie{
-    cursor: pointer;
-}
+    #input-add-movie{
+        width: min(30vw, 400px);
+        height: 20px;
+        padding: 5px;
+    }
 
-#input-add-movie{
-    width: min(30vw, 400px);
-    height: 20px;
-    padding: 5px;
-}
 
-#suggestion-container{
-    display: none;
-    position: absolute;
-    flex-direction: column;
-    gap: 5px;
-    max-height: 30vh;
-    background-color: var(--clr-bg);
-    overflow-y: auto;
-    overscroll-behavior: contain;
+    #suggestion-container{
+        display: none;
+        position: absolute;
+        flex-direction: column;
+        gap: 5px;
+        max-height: 30vh;
+        background-color: var(--clr-bg);
+        overflow-y: auto;
+        overscroll-behavior: contain;
 
-    padding-top: 5px;
-    padding-bottom: 5px;
-    .suggestion{
+        padding-top: 5px;
+        padding-bottom: 5px;
+        .suggestion{
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            padding-left: 8px;
+            padding-right: 8px;
+            .poster{
+                width: min(40px,10vw);
+            }
+        }
+    }
+
+    #suggestion-container.active{
+        display: flex;
+    }
+
+    #save-service-list{
+        margin-top: 5px;
+    }
+
+    #view-container{
+        display: flex;
+        flex-wrap: nowrap;
+        gap:5px;
+        float: right;
+    }
+
+    #button-list,#button-grid{
+        padding:5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #button-list.active,#button-grid.active{
+        background-color: var(--clr-accent);
+    }
+
+    /*#region filters */
+
+    #last-body-header-row{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        text-wrap-mode: nowrap;
+        gap: 10px;
+    }
+
+    .chip-container {
+        display: flex;
+        flex-wrap:nowrap;
+        gap: 8px;
+        overflow-x: auto;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+
+    .chip {
+        padding: 5px 10px;
+        height: 20px;
+        background-color: var(--clr-secondary);
+        border: 1px solid var(--clr-primary);
+        border-radius: 20px;
         cursor: pointer;
+        user-select: none; /*can't select text*/
+        /*align-items: center;*/
+        display: flex;
+        text-wrap-mode: nowrap;
+    }
+
+    .chip.active {
+        background-color: var(--clr-accent);
+        color: white;
+    }
+
+    .chip-key{
+        display: inline; 
+    }
+
+    .chip-contents{
+        display: none;
+    }
+
+    .chip-contents.active{
+        display: inline;
+    }
+
+    .chip-operator{
+        display: inline;
+        margin-left: 5px;
+    }
+
+    .chip-value{
+        display: inline;
+        margin-left: 5px;
+    }
+
+    #order-container{
+        float: right;
         display: flex;
         align-items: center;
         gap: 5px;
-
-        padding-left: 8px;
-        padding-right: 8px;
-        .poster{
-            width: min(40px,10vw);
-        }
+        flex-wrap: nowrap;
+        /*overflow-x: auto;*/
     }
-}
 
-#suggestion-container.active{
-    display: flex;
-}
+    #order{
+        padding: 5px;
+        border-radius: 8px;
+        background-color: var(--clr-secondary);
+    }
 
-#save-service-list{
-    margin-top: 5px;
-}
+    #reverse-order.active{
+        background-color: var(--clr-accent);
+    }
 
-#view-container{
-    display: flex;
-    flex-wrap: nowrap;
-    gap:5px;
-    float: right;
-}
-
-#button-list,#button-grid{
-    margin: 0;
-    padding:5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-}
-
-#button-list.active,#button-grid.active{
-    background-color: var(--clr-accent);
+    /*#endregion filters*/
 }
 
 .list{
     margin-bottom: 5vh;
+    
+    .movie{
+    cursor: pointer;
+    }
 }
 
 .list.grid-view{
@@ -295,97 +379,6 @@ button{
     }
 }
 
-/*#region filters */
-
-#last-body-header-row{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    text-wrap-mode: nowrap;
-    gap: 10px;
-}
-
-#apply-filters{
-    margin: 0;
-}
-
-.chip-container {
-    display: flex;
-    flex-wrap:nowrap;
-    gap: 8px;
-    overflow-x: auto;
-    margin-bottom: 10px;
-    margin-top: 10px;
-}
-
-.chip {
-    padding: 5px 10px;
-    height: 20px;
-    background-color: var(--clr-secondary);
-    border: 1px solid var(--clr-primary);
-    border-radius: 20px;
-    cursor: pointer;
-    user-select: none; /*can't select text*/
-    /*align-items: center;*/
-    display: flex;
-    text-wrap-mode: nowrap;
-}
-
-.chip.active {
-    background-color: var(--clr-accent);
-    color: white;
-}
-
-.chip-key{
-    display: inline; 
-    margin: 0;
-}
-
-.chip-contents{
-    display: none;
-}
-
-.chip-contents.active{
-    display: inline;
-}
-
-.chip-operator{
-    display: inline;
-    margin-left: 5px;
-}
-
-.chip-value{
-    display: inline;
-    margin-left: 5px;
-}
-
-#order-container{
-    float: right;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: nowrap;
-    /*overflow-x: auto;*/
-}
-
-#order{
-    padding: 5px;
-    border-radius: 8px;
-    background-color: var(--clr-secondary);
-}
-
-#reverse-order{
-    margin: 0;
-}
-
-#reverse-order.active{
-    background-color: var(--clr-accent);
-}
-
-/*#endregion filters*/
-
 /*#region popups*/
 
 .popup{
@@ -440,7 +433,6 @@ button{
         #mark-watched{
             float: right;
             display: inline;
-            margin: 0;
             margin-bottom: -50px;
         }
 
@@ -582,6 +574,8 @@ button{
 
 /*#endregion popup*/
 
+/*#region notification*/
+
 #notification{
     opacity: 0;
     
@@ -603,10 +597,7 @@ button{
     opacity: 1;
     transition: all 0.5s ease;
 }
-
-#message{
-    margin: 0;
-}
+/*#endregion notification*/
 
 @media /*only screen and*/ (width <= 500px) {
     #popup-movie{
