@@ -9,6 +9,16 @@
     </head>
     <body>
         <div id="body-header">
+            <!-- Buttons to choose list or grid view -->
+            <div id="view-container">
+                <button id="button-grid">
+                    <i class="fa fa-th-large"></i> Grid
+                </button>
+                <button id="button-list">
+                    <i class="fa fa-bars"></i> List
+                </button>
+            </div>
+            
             <input type="text" id="input-add-movie" placeholder="Movie/show name">
             <button id="button-add-movie">Add</button>
             <div id="suggestion-container"></div>
@@ -20,16 +30,6 @@
                 <button id="save-service-list">Save</button>
             </div>
             <datalist id="service-suggestions"></datalist>
-            
-            <!-- Buttons to choose list or grid view -->
-            <div id="view-container">
-                <button id="button-grid">
-                    <i class="fa fa-th-large"></i> Grid
-                </button>
-                <button id="button-list">
-                    <i class="fa fa-bars"></i> List
-                </button>
-            </div>
 
             <!-- filter system -->
             <div class="chip-container" id="chip-container"></div>
