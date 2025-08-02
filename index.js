@@ -169,8 +169,9 @@ function preferences(){
     document.getElementById("list").classList.add("grid-view");
     document.getElementById("button-grid").classList.add("active");
   }
-  globalThis.vpnMode = true
-  displayNotification('VPN mode currently enabled')
+
+  globalThis.vpnMode = false
+  //displayNotification('VPN mode currently enabled')
   globalThis.countryCode = 'US'
 
   // these shouldn't be changed
