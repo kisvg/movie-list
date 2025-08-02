@@ -170,6 +170,7 @@ function preferences(){
     document.getElementById("button-grid").classList.add("active");
   }
   globalThis.vpnMode = true
+  displayNotification('VPN mode currently enabled')
   globalThis.countryCode = 'US'
 
   // these shouldn't be changed
