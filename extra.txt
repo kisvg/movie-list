@@ -103,3 +103,13 @@ if (docSnap.exists()) {
         `
 
         */
+
+
+
+services = Object.fromEntries(
+      Object.entries(data)
+        .filter(([_, value]) => value.flatrate)
+        .map(([country, value]) => [
+          country,
+          value.flatrate.map(f => f.provider_name)
+    ]))

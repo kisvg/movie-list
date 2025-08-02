@@ -23,11 +23,14 @@
             <button id="button-add-movie">Add</button>
             <div id="suggestion-container"></div>
 
-            <button id="edit-services">Edit services</button>
-            <div id="popup-service" class="popup">
-                <p>Check the services we are subscribed to</p>
+            <button id="settings">
+                <i class="fa fa-cog"></i>
+            </button>
+            <div id="popup-settings" class="popup">
+                <input type="checkbox" id="vpn-mode"> <label for="vpn-mode">VPN Mode</label>
+                <p>Change services</p>
                 <div id="service-list"></div>
-                <button id="save-service-list">Save</button>
+                <button id="save-settings">Save</button>
             </div>
             <datalist id="service-suggestions"></datalist>
 

@@ -33,7 +33,7 @@ export async function renderServiceList(service_list){
     </div>
   `
   document.getElementById("service-list").innerHTML = html
-  document.getElementById('popup-service').classList.add("active")
+  document.getElementById('popup-settings').classList.add("active")
   document.getElementById("pop-bg").classList.add('active');
   document.getElementById('service-input-last').addEventListener("keyup", handleNewServiceInput)
   addListeners()
