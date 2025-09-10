@@ -23,7 +23,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
-//#endregion
+//#endregion firebase
 
 // refs
 const unwatchedRef = collection(db, "unwatched")
@@ -34,7 +34,7 @@ import * as service_list from './service_list.js'
 import countryMap from './country_map.json' with { type: 'json' };
 globalThis.countryMap = countryMap
 
-
+//#region startup
 // make sure html loaded
 window.addEventListener('DOMContentLoaded', function(){
   preferences()
@@ -42,6 +42,49 @@ window.addEventListener('DOMContentLoaded', function(){
   generateChips(filters)
   addTriggers()
 })
+
+function preferences(){
+  // TODO: change defaults based on user preference
+  if (window.innerWidth > 500){
+    document.getElementById("list").classList.add("list-view");
+    document.getElementById("button-list").classList.add("active");
+  }
+  else{
+    document.getElementById("list").classList.add("grid-view");
+    document.getElementById("button-grid").classList.add("active");
+  }
+
+  globalThis.vpnMode = false
+  //displayNotification('VPN mode currently enabled')
+  globalThis.countryCode = 'US'
+
+  // these shouldn't be changed
+  globalThis.reverseOrder = false
+}
+
+async function loadServiceList(){
+  let docRef = doc(db, "cloud", "services");
+  let docSnap = await getDoc(docRef);
+  let unordered = docSnap.data()
+  // not the best way, but it works. alternative (that I think does the same thing):
+  /*
+  const entries = Object.entries(obj);
+  entries.sort((a, b) => b[1] - a[1]); // sort true values first
+  const sortedObj = Object.fromEntries(entries);
+  */
+  globalThis.serviceList = Object.keys(unordered)
+  .sort((a, b) => unordered[b] - unordered[a])
+  .reduce((acc, key) => {
+    acc[key] = unordered[key];
+    return acc;
+  }, {})
+
+  globalThis.serviceArray = Object.keys(serviceList).filter(key => serviceList[key])
+
+  if (globalThis.doServiceFilter){
+    applyFilters()
+  }
+}
 
 function addTriggers(){
   // grid / list ui
@@ -69,32 +112,14 @@ function addTriggers(){
   document.getElementById("save-settings").onclick = async function(){
     document.getElementById('popup-settings').classList.remove('active')
     document.getElementById("pop-bg").classList.remove('active');
-
-    let prevMode = globalThis.vpnMode
-    if (document.getElementById('vpn-mode').checked){
-      globalThis.vpnMode = true
-    }
-    else{
-      globalThis.vpnMode = false
-    }
-    if(prevMode != globalThis.vpnMode){
-      applyFilters()
-    }
-
     try{
-      await saveServiceList(service_list.getServiceList())
-      displayNotification("Service list saved")
+      await saveSettings()
+      displayNotification("Settings saved.")
     }
     catch(e){
-      displayNotification("Saving service list failed. Try again.")
+      displayNotification("Settings failed to save.",false)
     }
-  }
-  //add movie
-  document.getElementById('button-add-movie').onclick = function() {
-    if(document.getElementById("input-add-movie").value != ""){
-      // if it isn't blank
-      addMovieByName(document.getElementById("input-add-movie").value)
-    }
+    
   };
   const debouncedHandleSuggestions = debounce(handleSuggestions, 300);
   document.getElementById("input-add-movie").addEventListener('keyup', function(event){
@@ -133,60 +158,42 @@ function addTriggers(){
       closePop()
     }
   }
-}
-
-async function loadServiceList(){
-  let docRef = doc(db, "cloud", "services");
-  let docSnap = await getDoc(docRef);
-  let unordered = docSnap.data()
-  // not the best way, but it works. alternative (that I think does the same thing):
-  /*
-  const entries = Object.entries(obj);
-  entries.sort((a, b) => b[1] - a[1]); // sort true values first
-  const sortedObj = Object.fromEntries(entries);
-  */
-  globalThis.serviceList = Object.keys(unordered)
-  .sort((a, b) => unordered[b] - unordered[a])
-  .reduce((acc, key) => {
-    acc[key] = unordered[key];
-    return acc;
-  }, {})
-
-  globalThis.serviceArray = Object.keys(serviceList).filter(key => serviceList[key])
-
-  if (globalThis.doServiceFilter){
-    applyFilters()
+  //add movie
+  document.getElementById('button-add-movie').onclick = function() {
+    if(document.getElementById("input-add-movie").value != ""){
+      // if it isn't blank
+      addMovieByName(document.getElementById("input-add-movie").value)
+    }
   }
 }
 
-function preferences(){
-  // TODO: change defaults based on user preference
-  if (window.innerWidth > 500){
-    document.getElementById("list").classList.add("list-view");
-    document.getElementById("button-list").classList.add("active");
-  }
-  else{
-    document.getElementById("list").classList.add("grid-view");
-    document.getElementById("button-grid").classList.add("active");
-  }
+//#endregion startup
 
-  globalThis.vpnMode = true
-  displayNotification('VPN mode currently enabled')
-  globalThis.countryCode = 'US'
-
-  // these shouldn't be changed
-  globalThis.reverseOrder = false
-}
+//#region misc
 
 function lowerArray(array){
   return array.map(item => item.toLowerCase())
 }
 
-/*
-function delay(time) {
-    return new Promise(resolve => setTimeout(resolve, (time)*1000));
+async function saveSettings(){
+    let prevMode = globalThis.vpnMode
+
+    if (document.getElementById('vpn-mode').checked){
+      globalThis.vpnMode = true
+    }
+    else{
+      globalThis.vpnMode = false
+    }
+
+    // because saveServiceList already applies filters
+    /*
+    if(prevMode != globalThis.vpnMode){
+      applyFilters()
+    }
+    */
+
+    await saveServiceList(service_list.getServiceList())
 }
-*/
 
 export async function saveServiceList(serviceList){
   globalThis.serviceList = serviceList
@@ -195,6 +202,8 @@ export async function saveServiceList(serviceList){
   applyFilters()
   await setDoc(doc(db,"cloud","services"),serviceList)
 }
+
+//#endregion misc
 
 //#region managing data
 
