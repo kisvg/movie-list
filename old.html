@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Movie List</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <!-- load icon library -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <div id="body-header">
+            <!-- Buttons to choose list or grid view -->
+            <div id="view-container">
+                <button id="button-grid">
+                    <i class="fa fa-th-large"></i> Grid
+                </button>
+                <button id="button-list">
+                    <i class="fa fa-bars"></i> List
+                </button>
+            </div>
+            
+            <input type="text" id="input-add-movie" placeholder="Movie/show name">
+            <button id="button-add-movie">Add</button>
+            <div id="suggestion-container"></div>
+
+            <button id="settings">
+                <i class="fa fa-cog"></i>
+            </button>
+            <div id="popup-settings" class="popup">
+                <input type="checkbox" id="vpn-mode"> <label for="vpn-mode">VPN Mode</label>
+                <p>Change services</p>
+                <div id="service-list"></div>
+                <button id="save-settings">Save</button>
+            </div>
+            <datalist id="service-suggestions"></datalist>
+
+            <!-- filter system -->
+            <div class="chip-container" id="chip-container"></div>
+
+            <div id="last-body-header-row">
+                <button id="apply-filters">Filter</button>
+                <div id="order-container">
+                    <label for="order">Order by</label>
+                    <select name="order" id="order">
+                        <option value="timestamp">Time added</option>
+                        <option value="rtrating">Rotten Tomatoes</option>
+                        <option value="rated">Rated</option>
+                        <option value="year">Release date</option>
+                        <option value="title">Alphabetical</option>
+                    </select>
+                    <button id="reverse-order"><i class="fa fa-sort"></i><p style="display: inline; margin-left: 5px;">Reverse</p></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="list" id="list">
+            <!-- movies go here-->
+        </div>
+
+        <!--popup stuff-->
+        <div id="pop-bg"></div>
+        <div id="popup-movie" class="popup">
+            <div class="pop-content" id="pop-content">
+                <span id="pop-close" class="pop-close">&times;</span>
+                <!-- or I could put this in c2 -->
+                <button id="mark-watched">Mark as watched</button>
+                <div id="pop-title-row">
+                    <h1 id="pop-title"></h1>
+                    <p id="pop-year" class="faded"></p>
+                </div>
+                <div class="pop-grid" id="pop-grid">
+                    <div class="c1" id="c1">
+                        <img id="pop-poster">
+                    </div>
+                    <div class="c2" id="c2">
+                        <h3>Streaming Services </h3>
+                        <div id="pop-services"></div>
+                        <h3>Genres </h3>
+                        <div id="pop-genres"></div>
+                        <div id="pop-rtrating-grid">
+                            <img id="pop-rtlogo" src="./images/rtrating.svg">
+                            <h3>Rotten Tomatoes </h3>
+                        </div>
+                        <p id="pop-rtrating"></p>
+                        <div id="pop-rated-grid">
+                            <img id="pop-ratedlogo" src="./images/rated.svg">
+                            <h3>Rated </h3>
+                        </div>
+                        <p id="pop-rated"></p>
+                    </div>
+                </div>
+                <!--elements of popup content outside of grid-->
+                <h3>Plot </h3>
+                <p id="pop-plot"></p>
+                <h3>Notes </h3>
+                <textarea id="pop-notes"></textarea>
+                <div id="pop-footer">
+                    <p class="ghost">Streaming services don't look right here?</p>
+                    <button id="pop-update">Update services</button>
+                </div>
+            </div>
+        </div>
+
+        <!--notification-->
+        <div id="notification">
+            <i id="notification-good" class="fa fa-check"></i>
+            <i id="notification-bad" class="fa fa-times"></i>
+            <p id="message"></p>
+        </div>
+        <script type="module" src="index.js"></script>
+    </body>
+
+</html>
